@@ -1,3 +1,5 @@
+// le premier qui se connecte sera la joueur 1
+
 class Carte {
     constructor(niveau, points, cout, couleur){
         this.niveau = niveau;
@@ -37,20 +39,26 @@ class Plateau {
     }
 }
 
-
+class Joueur {
+    constructor(nom, paquet, poche){
+        this.nom = nom;
+        this.paquet = paquet;
+        this.poche = poche;
+    }
+}
 
 function creerPlateau(){
-    plateau = [];
+    let plateau = [];
 
     // creer les 5 lignes
-    for(i = 0; i < 5; i++){
+    for(let i = 0; i < 5; i++){
         plateau.push([]);
     }
 
     // remplir le plateau vide
 
-    for(i = 0; i < 5; i++){
-        for(j = 0; j < 5; j++){
+    for(let i = 0; i < 5; i++){
+        for(let j = 0; j < 5; j++){
             plateau[i][j] = null;
         }
     }
@@ -93,7 +101,39 @@ function remplirPlateau(plateau, poche){
     return plateau;
 }
 
-function piocherJeton(PLayer, Poche){}
+
+function afficherPlateau(plateau) {
+    const conteneur = document.getElementById("plateauAffichage");
+    conteneur.innerHTML = ""; // On vide la zone avant de la dessiner
+
+    // On parcourt les 5 lignes et les 5 colonnes
+    for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+            // Création d'une case
+            const caseDiv = document.createElement("div");
+            caseDiv.classList.add("case"); // On lui donne le style CSS
+
+            const jeton = plateau[i][j];
+            
+            // Si la case n'est pas vide, on affiche la couleur du jeton
+            if (jeton !== null) {
+                // On affiche la 1ère lettre de la couleur (ex: "B" pour Bleu)
+                caseDiv.innerText = jeton.couleur.charAt(0); 
+                
+                // Bonus : On peut même changer la couleur du texte selon le jeton
+                caseDiv.style.color = jeton.couleur.toLowerCase();
+            }
+
+            // On ajoute la case dans la grille HTML
+            conteneur.appendChild(caseDiv);
+        }
+    }
+}
+
+
+function piocherJeton(PLayer, Poche){
+    return null;
+}
 
 function creerPaquet(){
     const paquet = [];
@@ -169,8 +209,18 @@ function afficherPaquetCarte(paquet){
 }
 
 
-// Fonction relais appelée par le bouton HTML
 function declencherAffichage() {
+    // 1. Afficher les cartes (déjà fait)
     const paquetInit = creerPaquet();
     afficherPaquetCarte(paquetInit);
+
+    // 2. Préparer et afficher le plateau
+    let maPoche = creerPocheJeton();     // On crée le sac de jetons
+    let monPlateauVide = creerPlateau(); // On crée la grille vide
+    
+    // On remplit la grille avec les jetons du sac
+    let monPlateauRempli = remplirPlateau(monPlateauVide, maPoche); 
+    
+    // On dessine le résultat sur la page
+    afficherPlateau(monPlateauRempli);
 }

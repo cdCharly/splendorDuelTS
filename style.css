@@ -1,0 +1,20 @@
+/* le plateau */
+.grille-plateau {
+    display: grid;
+    grid-template-columns: repeat(5, 60px); /* 5 colonnes de 60 pixels */
+    grid-template-rows: repeat(5, 60px);    /* 5 lignes de 60 pixels */
+    gap: 5px;                               /* Espace entre les cases */
+    margin-top: 20px;
+}
+
+.case {
+    width: 60px;
+    height: 60px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Transforme la case carrée en un cercle (jeton) */
+    font-weight: bold;
+}
