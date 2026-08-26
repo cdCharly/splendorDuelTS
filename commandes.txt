@@ -1,0 +1,6 @@
+pour mettre à jour le site web :
+depuis proxmox selectionner mon container lxc   -> console
+rm -rf /var/www/html
+puis
+git clone https://github.com/cdCharly/splendorDuelTS.git /var/www/html
+puis tester
