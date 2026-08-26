@@ -1,12 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <!DOCTYPE html>
-
+    <title>Splendor Duel</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- L'attribut "defer" est crucial ici -->
+    <script src="script.js" defer></script>
 </head>
-
 <body>
-    Test home page
-
-
-
-
+<!-- le bouton appele la fonction declencherAffichage--> 
+    <button type="button" onclick="declencherAffichage()">Afficher Paquet</button>
+    
+    <!-- endroit ou le paquet crée les balises p avec les infos dedans-->
+    <div id="paquetAffichage"></div>
 </body>
+</html>
