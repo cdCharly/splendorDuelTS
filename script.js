@@ -47,6 +47,15 @@ class Joueur {
     }
 }
 
+
+// variables globales
+
+let jetonsSelectionnes = []; // Stockera les coordonnées des clics
+
+
+
+
+
 function creerPlateau(){
     let plateau = [];
 
@@ -122,6 +131,10 @@ function afficherPlateau(plateau) {
                 
                 // Bonus : On peut même changer la couleur du texte selon le jeton
                 caseDiv.style.color = jeton.couleur.toLowerCase();
+
+                caseDiv.onclick = function() {
+                cliquerJeton(i, j, jeton, caseDiv);
+    };
             }
 
             // On ajoute la case dans la grille HTML
@@ -137,8 +150,8 @@ function piocherJeton(PLayer, Poche){
 
 function creerPaquet(){
     const paquet = [];
-    const coutA = [new Jeton("Bleu", "Player1"), new Jeton("Bleu", "Player1")];
-    const coutB = [new Jeton("Bleu", "Player1"), new Jeton("Vert", "Player1")];
+    const coutA = [new Jeton("Blue", "Player1"), new Jeton("Blue", "Player1")];
+    const coutB = [new Jeton("Blue", "Player1"), new Jeton("Green", "Player1")];
     // test de push de cartes
     paquet.push(new Carte(1,1,coutA));
     paquet.push(new Carte(2,4,coutB));
@@ -150,7 +163,7 @@ function creerPocheJeton(){
 
     // 2 Rose
     for(i = 0; i < 2; i++){
-        pocheJeton.push(new Jeton("Rose", "nobody"));    
+        pocheJeton.push(new Jeton("Pink", "nobody"));    
     }
 
     //3 Gold
@@ -160,27 +173,27 @@ function creerPocheJeton(){
 
     //4 Bleu
     for(i = 0; i < 4; i++){
-        pocheJeton.push(new Jeton("Bleu", "nobody"));    
+        pocheJeton.push(new Jeton("Blue", "nobody"));    
     }
 
     //4 Rouge
     for(i = 0; i < 4; i++){
-        pocheJeton.push(new Jeton("Rouge", "nobody"));    
+        pocheJeton.push(new Jeton("Red", "nobody"));    
     }
 
     //4 Vert
     for(i = 0; i < 4; i++){
-        pocheJeton.push(new Jeton("Vert", "nobody"));    
+        pocheJeton.push(new Jeton("Green", "nobody"));    
     }
 
     //4 Blanc
     for(i = 0; i < 4; i++){
-        pocheJeton.push(new Jeton("Blanc", "nobody"));    
+        pocheJeton.push(new Jeton("White", "nobody"));    
     }
     
     //4 Noir
     for(i = 0; i < 4; i++){
-        pocheJeton.push(new Jeton("Noir", "nobody"));    
+        pocheJeton.push(new Jeton("Black", "nobody"));    
     }
     return pocheJeton;
 }
@@ -190,7 +203,7 @@ function creerPocheJeton(){
 
 function afficherPaquetCarte(paquet){
     // L'ID correspond au HTML
-    const conteneur = document.getElementById("paquetAffichage");
+    const conteneur = document.getElementById("paquet-affichage");
     
     // On vide le conteneur au cas où on clique plusieurs fois sur le bouton
     conteneur.innerHTML = ""; 
@@ -222,5 +235,148 @@ function declencherAffichage() {
     let monPlateauRempli = remplirPlateau(monPlateauVide, maPoche); 
     
     // On dessine le résultat sur la page
+    afficherPlateau(monPlateauRempli);
+}
+
+
+// renvoie un jeton par rapport à sa position et l'enleve du plateau
+function pickJeton(plateau, x, y){
+    const jetonPicked = plateau[x][y];
+    plateau[x][y] = null;
+    return jetonPicked;
+
+}
+
+function acheterCarte(carte, joueur){
+
+    let besoin = {};
+    carte.cout.forEach(
+        jeton => {
+            besoin[jeton.couleur] = (besoin[jeton.couleur] || 0) +1;
+        }
+    );
+
+
+    let possessionsJoueur = {};
+    joueur.poche.forEach(
+        jeton => {
+            possessionsJoueur[jeton.couleur] = (possessionsJoueur[jeton.couleur] || 0) +1;
+        }
+    );
+
+
+    let achatPossible = true;
+    for(const couleur in besoin){
+        if(!possessionsJoueur[couleur] || possessionsJoueur[couleur] < besoin[couleur]){
+            achatPossible = false;
+            break;
+        }
+    }
+
+    if (achatPossible){
+        carte.owner = joueur.name;
+
+        // retirer les jetons du joueur
+
+        
+    for (const couleur in besoin) {
+        let quantiteARetirer = besoin[couleur];
+
+        while (quantiteARetirer > 0) {
+        const index = joueur.poche.findIndex(j => j.couleur === couleur);
+        if (index !== -1) {
+            joueur.poche.splice(index, 1);
+            quantiteARetirer--;
+            }
+        }
+    }
+        // debug
+        console.log("achat ok");
+        return true;
+    }
+    else{
+        // debug
+        console.log("achat echec");
+        return false;
+    }
+
+}
+
+
+
+function cliquerJeton(ligne, colonne, jeton, elementHTML) {
+    // Règle 1 : On ne peut pas prendre d'Or sur le plateau de base
+    if (jeton.couleur === "Gold") {
+        console.log("Impossible de prendre un jeton Or !");
+        return;
+    }
+
+    // Vérifier si le jeton est déjà sélectionné (pour le désélectionner)
+    const index = jetonsSelectionnes.findIndex(s => s.ligne === ligne && s.colonne === colonne);
+    
+    if (index !== -1) {
+        // On le retire de la sélection et on enlève l'effet visuel
+        jetonsSelectionnes.splice(index, 1);
+        elementHTML.classList.remove("selectionne");
+    } else {
+        // Règle 2 : Maximum 3 jetons
+        if (jetonsSelectionnes.length >= 3) {
+            console.log("Vous ne pouvez sélectionner que 3 jetons maximum.");
+            return;
+        }
+
+        // On simule l'ajout pour voir si c'est valide
+        jetonsSelectionnes.push({ ligne, colonne, jeton, elementHTML });
+
+        // Règle 3 : Alignement et contiguïté
+        if (verifierAlignement(jetonsSelectionnes)) {
+            elementHTML.classList.add("selectionne"); // C'est valide, on illumine la case
+        } else {
+            jetonsSelectionnes.pop(); // Ce n'est pas valide, on annule l'ajout
+            console.log("Les jetons doivent être adjacents et alignés !");
+        }
+    }
+}
+
+// L'algorithme mathématique pour vérifier l'alignement
+function verifierAlignement(selection) {
+    if (selection.length <= 1) return true;
+
+    // On trie les jetons sélectionnés (de haut en bas, puis de gauche à droite)
+    const tri = [...selection].sort((a, b) => (a.ligne !== b.ligne) ? a.ligne - b.ligne : a.colonne - b.colonne);
+
+    // Calcul de la direction (vecteur) entre le 1er et le 2ème jeton
+    let deltaLigne = tri[1].ligne - tri[0].ligne;
+    let deltaColonne = tri[1].colonne - tri[0].colonne;
+
+    // Ils doivent être collés (la différence max de coordonnées doit être 1)
+    if (Math.abs(deltaLigne) > 1 || Math.abs(deltaColonne) > 1) return false;
+
+    // Si on a 3 jetons, la direction entre le 2ème et le 3ème doit être EXACTEMENT la même
+    if (tri.length === 3) {
+        let deltaLigne2 = tri[2].ligne - tri[1].ligne;
+        let deltaColonne2 = tri[2].colonne - tri[1].colonne;
+        if (deltaLigne !== deltaLigne2 || deltaColonne !== deltaColonne2) return false;
+    }
+
+    return true;
+}
+
+
+
+function validerPioche() {
+    if (jetonsSelectionnes.length === 0) return;
+
+    // On parcourt la sélection
+    jetonsSelectionnes.forEach(choix => {
+        // On utilise la méthode pickJeton que vous aviez préparée !
+        let jetonRecupere = pickJeton(monPlateauRempli, choix.ligne, choix.colonne);
+        
+        // TODO : Ajouter 'jetonRecupere' dans la poche du joueur courant
+        console.log(`Jeton ${jetonRecupere.couleur} récupéré !`);
+    });
+
+    // On vide la sélection et on redessine le plateau
+    jetonsSelectionnes = [];
     afficherPlateau(monPlateauRempli);
 }

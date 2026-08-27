@@ -18,3 +18,17 @@
     border-radius: 50%; /* Transforme la case carrée en un cercle (jeton) */
     font-weight: bold;
 }
+
+
+body{
+    display:flex;
+    align-items: center;
+    flex-direction:column;
+}
+
+.selectionne {
+    border: 3px solid #ffcc00;
+    box-shadow: 0 0 10px #ffcc00;
+    transform: scale(1.1); /* Petit effet de zoom */
+    transition: 0.2s;
+}
