@@ -1,7 +1,7 @@
 // le premier qui se connecte sera la joueur 1
 
 // serveur debug
-const socket = io("[http://192.168.1.50:3000](http://192.168.1.50:3000)");
+const socketA = io("[http://192.168.1.50:3000](http://192.168.1.50:3000)");
 
 
 class Carte {
