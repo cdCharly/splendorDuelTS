@@ -1,5 +1,9 @@
 // le premier qui se connecte sera la joueur 1
 
+// serveur debug
+socket = io("http://VOTRE_IP_PROXMOX:3000");
+
+
 class Carte {
     constructor(niveau, points, cout, couleur){
         this.niveau = niveau;
