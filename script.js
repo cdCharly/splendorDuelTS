@@ -15,13 +15,13 @@ class Jeton{
         this.couleur = couleur;
         this.owner = owner;
     }
-}
+} 
 
 
 // le plateau est en 5x5
 class Plateau {
     constructor() {
-        // Initialisation d'une grille 5x5 vide
+        // grille 5x5
         this.grille = [
             [null, null, null, null, null],
             [null, null, null, null, null],
@@ -32,6 +32,9 @@ class Plateau {
     }
 
     placerJeton(ligne, colonne, jeton) {
+
+
+
         // Permet de poser un objet Jeton à un endroit précis en verifiant la position libre ou non
         if (this.grille[ligne][colonne] === null) {
             this.grille[ligne][colonne] = jeton;
