@@ -1,7 +1,7 @@
 // le premier qui se connecte sera la joueur 1
 
 // serveur debug
-const socket = io("[http://192.168.1.50:3000](http://192.168.1.50:3000)");
+const socket = io("http://192.168.1.50:3000");
 
 
 class Carte {
@@ -239,7 +239,7 @@ function declencherAffichage() {
     let monPlateauVide = creerPlateau(); // On crée la grille vide
     
     // On remplit la grille avec les jetons du sac
-    let monPlateauRempli = remplirPlateau(monPlateauVide, maPoche); 
+    monPlateauRempli = remplirPlateau(monPlateauVide, maPoche); 
     
     // On dessine le résultat sur la page
     afficherPlateau(monPlateauRempli);
