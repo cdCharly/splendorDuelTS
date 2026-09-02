@@ -1,50 +1,41 @@
-// ==========================================
-// 1. CONNEXION AU SERVEUR
-// ==========================================
-// Remplacer l'IP par celle de votre Proxmox
+// Connexion au serveur (Remplacez par votre IP si besoin)
 const socket = io("http://192.168.1.50:3000");
 
-// Variables globales côté client
+// Variables globales pour l'interface
+let jetonsSelectionnes = [];
 let monRole = "Spectateur";
-let jetonsSelectionnes = []; // Stocke les clics locaux avant validation
 
 // ==========================================
-// 2. ÉCOUTE DES MESSAGES DU SERVEUR
+// 1. RÉCEPTION DES DONNÉES DU SERVEUR
 // ==========================================
 
-// Le serveur nous informe de notre rôle (Player1, Player2, ou Spectateur)
+// Le serveur nous donne notre rôle (Player1 ou Player2)
 socket.on('role_attribue', (role) => {
     monRole = role;
-    console.log("Je suis connecté en tant que : " + monRole);
-    
-    // On l'affiche sur la page pour savoir qui on est
-    document.getElementById("plateauName").innerText = `Plateau de Jeu (${monRole})`;
+    console.log(`Je suis ${monRole}`);
 });
 
-// Le serveur nous envoie l'état officiel de la partie
-socket.on('mise_a_jour_partie', (etatPartie) => {
-    console.log("Nouvelle mise à jour reçue du serveur !");
-    
-    // On vide notre sélection locale pour éviter les bugs visuels
-    jetonsSelectionnes = [];
-    
-    // On met à jour l'affichage avec les données du serveur
-    afficherPlateau(etatPartie.plateau);
-    afficherPaquetCarte(etatPartie.paquet);
+// Le serveur nous envoie l'état officiel de la partie (le vrai plateau)
+socket.on('mise_a_jour_partie', (etatServeur) => {
+    console.log("Mise à jour reçue du serveur !");
+    // On dessine le plateau et les cartes en utilisant UNIQUEMENT les données du serveur
+    afficherPlateau(etatServeur.plateau);
+    afficherPaquetCarte(etatServeur.paquet);
 });
 
 // ==========================================
-// 3. FONCTIONS D'AFFICHAGE (LES VUES)
+// 2. AFFICHAGE (FRONT-END)
 // ==========================================
 
 function afficherPlateau(plateau) {
     const conteneur = document.getElementById("plateauAffichage");
-    conteneur.innerHTML = ""; // On vide la zone avant de dessiner
+    conteneur.innerHTML = ""; 
+    jetonsSelectionnes = []; // On réinitialise la sélection à chaque mise à jour
 
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
             const caseDiv = document.createElement("div");
-            caseDiv.classList.add("case");
+            caseDiv.classList.add("case"); 
 
             const jeton = plateau[i][j];
             
@@ -57,7 +48,6 @@ function afficherPlateau(plateau) {
                     cliquerJeton(i, j, jeton, caseDiv);
                 };
             }
-
             conteneur.appendChild(caseDiv);
         }
     }
@@ -69,6 +59,7 @@ function afficherPaquetCarte(paquet) {
 
     paquet.forEach((carte, index) => {
         const paragraphe = document.createElement("p");
+        // Les jetons du coût ont été transformés en objets classiques par le réseau
         const texteCout = carte.cout.map(j => j.couleur).join(", ");
         paragraphe.innerHTML = `<strong>Carte ${index + 1}</strong> : Niveau ${carte.niveau} | Points : ${carte.points} | Coût : ${texteCout}`;
         conteneur.appendChild(paragraphe);
@@ -76,16 +67,10 @@ function afficherPaquetCarte(paquet) {
 }
 
 // ==========================================
-// 4. INTERACTIONS DU JOUEUR (CLICS)
+// 3. INTERACTIONS DU JOUEUR
 // ==========================================
 
 function cliquerJeton(ligne, colonne, jeton, elementHTML) {
-    // Les spectateurs ne peuvent pas jouer
-    if (monRole === "Spectateur") {
-        console.log("Vous êtes spectateur !");
-        return;
-    }
-
     if (jeton.couleur === "Gold") {
         console.log("Impossible de prendre un jeton Or !");
         return;
@@ -115,41 +100,27 @@ function cliquerJeton(ligne, colonne, jeton, elementHTML) {
 
 function verifierAlignement(selection) {
     if (selection.length <= 1) return true;
-
     const tri = [...selection].sort((a, b) => (a.ligne !== b.ligne) ? a.ligne - b.ligne : a.colonne - b.colonne);
-
     let deltaLigne = tri[1].ligne - tri[0].ligne;
     let deltaColonne = tri[1].colonne - tri[0].colonne;
-
     if (Math.abs(deltaLigne) > 1 || Math.abs(deltaColonne) > 1) return false;
-
     if (tri.length === 3) {
         let deltaLigne2 = tri[2].ligne - tri[1].ligne;
         let deltaColonne2 = tri[2].colonne - tri[1].colonne;
         if (deltaLigne !== deltaLigne2 || deltaColonne !== deltaColonne2) return false;
     }
-
     return true;
 }
 
-// ==========================================
-// 5. ENVOI DES ACTIONS AU SERVEUR
-// ==========================================
-
+// L'action finale est envoyée au serveur !
 function validerPioche() {
     if (jetonsSelectionnes.length === 0) return;
 
-    // On prépare un tableau simplifié (juste les coordonnées) à envoyer au serveur
-    const demande = jetonsSelectionnes.map(choix => {
+    // On prépare juste les coordonnées à envoyer au serveur
+    let demande = jetonsSelectionnes.map(choix => {
         return { ligne: choix.ligne, colonne: choix.colonne };
     });
 
-    // On envoie l'action à notre serveur Node.js !
+    // On dit au serveur : "Voici les cases que je veux prendre"
     socket.emit('demande_pioche', demande);
-
-    // On nettoie notre interface en attendant la réponse du serveur
-    jetonsSelectionnes.forEach(choix => {
-        choix.elementHTML.classList.remove("selectionne");
-    });
-    jetonsSelectionnes = [];
 }
