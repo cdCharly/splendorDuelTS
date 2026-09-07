@@ -135,32 +135,51 @@ io.on('connection', (socket) => {
         socket.emit('mise_a_jour_partie', etatPartie);
     }
 
-    // Gestion de la pioche
-    socket.on('demande_pioche', (selection) => {
+        socket.on('demande_pioche', (selection) => {
         let client = connexions.find(c => c.id === socket.id);
-        if (!client || (client.role !== etatPartie.tourActuel )){
-		console.log("action refusee : pas au tour de ${client.role}");
-		return; // action terminee
-	}
+        
+        // 1. On vérifie si c'est bien le tour du joueur
+        if (!client || client.role !== etatPartie.tourActuel) {
+            console.log(`Refusé : Action non autorisée pour ${client ? client.role : 'Inconnu'}`);
+            return; 
+        }
 
         let instanceJoueur = etatPartie.joueurs[client.role];
 
+        // 2. SÉCURITÉ ANTI-CRASH : On s'assure que le client a bien envoyé un tableau
+        if (!Array.isArray(selection)) {
+            console.log("Erreur : Les données reçues ne sont pas valides.");
+            return;
+        }
+
+        // 3. Traitement des jetons
         selection.forEach(choix => {
-            let jeton = etatPartie.plateau[choix.ligne][choix.colonne];
-            if (jeton) {
-                jeton.owner = instanceJoueur.nom;
-                instanceJoueur.poche.push(jeton);
-                etatPartie.plateau[choix.ligne][choix.colonne] = null;
+            // SÉCURITÉ ANTI-CRASH : On vérifie que la ligne demandée existe avant de chercher la colonne
+            if (etatPartie.plateau[choix.ligne] !== undefined && etatPartie.plateau[choix.ligne][choix.colonne] !== undefined) {
+                
+                let jeton = etatPartie.plateau[choix.ligne][choix.colonne];
+                
+                if (jeton) {
+                    jeton.owner = instanceJoueur.nom;
+                    instanceJoueur.poche.push(jeton);
+                    etatPartie.plateau[choix.ligne][choix.colonne] = null;
+                }
+            } else {
+                console.log(`Erreur : La case [${choix.ligne}][${choix.colonne}] n'existe pas.`);
             }
         });
 
-	// changement de role
-	if(etatPartie.tourActuel === 'Player1'){
-		etatPartie.tourActuel = 'Player2';
-	}
-	else{
-		etatPartie.tourActuel = 'Player1';
-	}
+        // 4. CHANGEMENT DE TOUR : On bascule le tour
+        if (etatPartie.tourActuel === 'Player1') {
+            etatPartie.tourActuel = 'Player2';
+        } else {
+            etatPartie.tourActuel = 'Player1';
+        }
+
+        // 5. On renvoie le nouveau plateau à tout le monde
+        io.emit('mise_a_jour_partie', etatPartie);
+    });
+
 
 
         // On renvoie le plateau mis à jour à tout le monde
@@ -171,8 +190,8 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`Déconnexion : ${socket.id}`);
         connexions = connexions.filter(c => c.id !== socket.id);
-    });
 });
+
 
 // Lancement du serveur
 server.listen(3000, () => {
