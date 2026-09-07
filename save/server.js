@@ -42,7 +42,9 @@ let connexions = []; // Stocke les ID Socket et les rôles
 let etatPartie = {
     plateau: [],
     poche: [],
-    paquet: [],
+    paquetLv1: [],
+    paquetLv2: [],
+    paquetLv3: [],
     joueurs: {},
     tourActuel: "Player1"
 };
@@ -68,14 +70,186 @@ function creerPocheJeton() {
     return poche;
 }
 
-function creerPaquet() {
-    const paquet = [];
-    const coutA = [new Jeton("Blue", "Player1"), new Jeton("Blue", "Player1")];
-    const coutB = [new Jeton("Blue", "Player1"), new Jeton("Green", "Player1")];
-    paquet.push(new Carte(1, 1, coutA, "Red"));
-    paquet.push(new Carte(2, 4, coutB, "Black"));
-    return paquet;
+
+
+
+// Fonction outil pour écrire les coûts en 1 ligne : (Blanc, Bleu, Vert, Rouge, Noir, Perle_Rose)
+function genererCout(w, u, g, r, b, pink = 0) {
+    let cout = [];
+    for(let i=0; i<w; i++) cout.push(new Jeton("White", "plateau"));
+    for(let i=0; i<u; i++) cout.push(new Jeton("Blue", "plateau"));
+    for(let i=0; i<g; i++) cout.push(new Jeton("Green", "plateau"));
+    for(let i=0; i<r; i++) cout.push(new Jeton("Red", "plateau"));
+    for(let i=0; i<b; i++) cout.push(new Jeton("Black", "plateau"));
+    for(let i=0; i<pink; i++) cout.push(new Jeton("Pink", "plateau"));
+    return cout;
 }
+
+function creerPaquetNiveau1() {
+    const paquet = [];
+
+    // ==========================================
+    // CARTES BLANCHES (White)
+    // format : niveau, points, cout(W, U, G, R, B, Pink), couleur, couronnes, pouvoir
+    // ==========================================
+    paquet.push(new Carte(1, 0, genererCout(0, 2, 0, 0, 1, 0), "White", 0, "rejouer"));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 3, 0, 0, 1), "White", 0, "privilege"));
+    paquet.push(new Carte(1, 0, genererCout(0, 1, 1, 1, 1, 0), "White", 1, null));
+    paquet.push(new Carte(1, 1, genererCout(0, 0, 0, 4, 0, 0), "White", 0, null));
+    paquet.push(new Carte(1, 0, genererCout(0, 1, 2, 0, 0, 1), "White", 0, "jeton_bonus"));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 0, 2, 2, 0), "White", 0, "voler_jeton"));
+
+    // ==========================================
+    // CARTES BLEUES (Blue)
+    // ==========================================
+    paquet.push(new Carte(1, 0, genererCout(1, 0, 2, 0, 0, 0), "Blue", 0, "rejouer"));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 0, 3, 0, 1), "Blue", 0, "privilege"));
+    paquet.push(new Carte(1, 0, genererCout(1, 0, 1, 1, 1, 0), "Blue", 1, null));
+    paquet.push(new Carte(1, 1, genererCout(0, 0, 0, 0, 4, 0), "Blue", 0, null));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 1, 2, 0, 1), "Blue", 0, "jeton_bonus"));
+    paquet.push(new Carte(1, 0, genererCout(2, 0, 0, 0, 2, 0), "Blue", 0, "voler_jeton"));
+
+    // ==========================================
+    // CARTES VERTES (Green)
+    // ==========================================
+    paquet.push(new Carte(1, 0, genererCout(0, 1, 0, 2, 0, 0), "Green", 0, "rejouer"));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 0, 0, 3, 1), "Green", 0, "privilege"));
+    paquet.push(new Carte(1, 0, genererCout(1, 1, 0, 1, 1, 0), "Green", 1, null));
+    paquet.push(new Carte(1, 1, genererCout(4, 0, 0, 0, 0, 0), "Green", 0, null));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 0, 1, 2, 1), "Green", 0, "jeton_bonus"));
+    paquet.push(new Carte(1, 0, genererCout(2, 2, 0, 0, 0, 0), "Green", 0, "voler_jeton"));
+
+    // ==========================================
+    // CARTES ROUGES (Red)
+    // ==========================================
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 1, 0, 2, 0), "Red", 0, "rejouer"));
+    paquet.push(new Carte(1, 0, genererCout(3, 0, 0, 0, 0, 1), "Red", 0, "privilege"));
+    paquet.push(new Carte(1, 0, genererCout(1, 1, 1, 0, 1, 0), "Red", 1, null));
+    paquet.push(new Carte(1, 1, genererCout(0, 4, 0, 0, 0, 0), "Red", 0, null));
+    paquet.push(new Carte(1, 0, genererCout(2, 0, 0, 0, 1, 1), "Red", 0, "jeton_bonus"));
+    paquet.push(new Carte(1, 0, genererCout(0, 2, 2, 0, 0, 0), "Red", 0, "voler_jeton"));
+
+    // ==========================================
+    // CARTES NOIRES (Black)
+    // ==========================================
+    paquet.push(new Carte(1, 0, genererCout(2, 0, 0, 1, 0, 0), "Black", 0, "rejouer"));
+    paquet.push(new Carte(1, 0, genererCout(0, 3, 0, 0, 0, 1), "Black", 0, "privilege"));
+    paquet.push(new Carte(1, 0, genererCout(1, 1, 1, 1, 0, 0), "Black", 1, null));
+    paquet.push(new Carte(1, 1, genererCout(0, 0, 4, 0, 0, 0), "Black", 0, null));
+    paquet.push(new Carte(1, 0, genererCout(1, 2, 0, 0, 0, 1), "Black", 0, "jeton_bonus"));
+    paquet.push(new Carte(1, 0, genererCout(0, 0, 2, 2, 0, 0), "Black", 0, "voler_jeton"));
+
+    // On mélange le paquet avant de le renvoyer (très important pour piocher aléatoirement !)
+    return paquet.sort(() => Math.random() - 0.5);
+}
+
+function creerPaquetNiveau2() {
+    const paquet = [];
+
+    // ==========================================
+    // CARTES BLANCHES (White)
+    // format : niveau, points, cout(W, U, G, R, B, Pink), couleur, couronnes, pouvoir
+    // ==========================================
+    paquet.push(new Carte(2, 1, genererCout(0, 3, 0, 0, 2, 0), "White", 1, null));
+    paquet.push(new Carte(2, 2, genererCout(2, 0, 0, 2, 0, 2), "White", 0, null));
+    paquet.push(new Carte(2, 1, genererCout(0, 0, 4, 0, 0, 1), "White", 0, "rejouer"));
+    paquet.push(new Carte(2, 2, genererCout(0, 2, 2, 0, 2, 0), "White", 1, "privilege"));
+
+    // ==========================================
+    // CARTES BLEUES (Blue)
+    // ==========================================
+    paquet.push(new Carte(2, 1, genererCout(0, 0, 3, 2, 0, 0), "Blue", 1, null));
+    paquet.push(new Carte(2, 2, genererCout(2, 2, 0, 0, 0, 2), "Blue", 0, null));
+    paquet.push(new Carte(2, 1, genererCout(0, 0, 0, 4, 0, 1), "Blue", 0, "rejouer"));
+    paquet.push(new Carte(2, 2, genererCout(2, 0, 0, 2, 2, 0), "Blue", 1, "privilege"));
+
+    // ==========================================
+    // CARTES VERTES (Green)
+    // ==========================================
+    paquet.push(new Carte(2, 1, genererCout(2, 0, 0, 3, 0, 0), "Green", 1, null));
+    paquet.push(new Carte(2, 2, genererCout(0, 2, 2, 0, 0, 2), "Green", 0, null));
+    paquet.push(new Carte(2, 1, genererCout(0, 0, 0, 0, 4, 1), "Green", 0, "rejouer"));
+    paquet.push(new Carte(2, 2, genererCout(2, 2, 0, 2, 0, 0), "Green", 1, "privilege"));
+
+    // ==========================================
+    // CARTES ROUGES (Red)
+    // ==========================================
+    paquet.push(new Carte(2, 1, genererCout(0, 2, 0, 0, 3, 0), "Red", 1, null));
+    paquet.push(new Carte(2, 2, genererCout(0, 0, 2, 2, 0, 2), "Red", 0, null));
+    paquet.push(new Carte(2, 1, genererCout(4, 0, 0, 0, 0, 1), "Red", 0, "rejouer"));
+    paquet.push(new Carte(2, 2, genererCout(2, 2, 2, 0, 0, 0), "Red", 1, "privilege"));
+
+    // ==========================================
+    // CARTES NOIRES (Black)
+    // ==========================================
+    paquet.push(new Carte(2, 1, genererCout(3, 0, 2, 0, 0, 0), "Black", 1, null));
+    paquet.push(new Carte(2, 2, genererCout(0, 0, 0, 2, 2, 2), "Black", 0, null));
+    paquet.push(new Carte(2, 1, genererCout(0, 4, 0, 0, 0, 1), "Black", 0, "rejouer"));
+    paquet.push(new Carte(2, 2, genererCout(0, 2, 2, 2, 0, 0), "Black", 1, "privilege"));
+
+    // ==========================================
+    // CARTES GRISES (Joker / Neutres)
+    // ==========================================
+    // Ces cartes offrent souvent des bonus de couleur au choix ("couleur_bonus") ou beaucoup de couronnes.
+    paquet.push(new Carte(2, 2, genererCout(3, 3, 0, 0, 0, 1), "Joker", 0, "couleur_bonus"));
+    paquet.push(new Carte(2, 1, genererCout(0, 0, 2, 2, 2, 1), "Joker", 2, null));
+    paquet.push(new Carte(2, 0, genererCout(0, 0, 0, 4, 4, 0), "Joker", 2, "voler_jeton"));
+    paquet.push(new Carte(2, 1, genererCout(3, 3, 3, 0, 0, 0), "Joker", 1, "jeton_bonus"));
+
+    // On mélange le paquet comme pour le Niveau 1
+    return paquet.sort(() => Math.random() - 0.5);
+}
+
+
+function creerPaquetNiveau3() {
+    const paquet = [];
+
+    // ==========================================
+    // CARTES BLANCHES (White)
+    // format : niveau, points, cout(W, U, G, R, B, Pink), couleur, couronnes, pouvoir
+    // ==========================================
+    paquet.push(new Carte(3, 4, genererCout(0, 4, 3, 0, 0, 1), "White", 1, "rejouer"));
+    paquet.push(new Carte(3, 5, genererCout(0, 0, 5, 3, 0, 0), "White", 0, null));
+
+    // ==========================================
+    // CARTES BLEUES (Blue)
+    // ==========================================
+    paquet.push(new Carte(3, 4, genererCout(0, 0, 4, 3, 0, 1), "Blue", 1, "privilege"));
+    paquet.push(new Carte(3, 5, genererCout(0, 0, 0, 5, 3, 0), "Blue", 0, null));
+
+    // ==========================================
+    // CARTES VERTES (Green)
+    // ==========================================
+    paquet.push(new Carte(3, 4, genererCout(0, 0, 0, 4, 3, 1), "Green", 1, "voler_jeton"));
+    paquet.push(new Carte(3, 5, genererCout(3, 0, 0, 0, 5, 0), "Green", 0, null));
+
+    // ==========================================
+    // CARTES ROUGES (Red)
+    // ==========================================
+    paquet.push(new Carte(3, 3, genererCout(3, 0, 0, 0, 4, 1), "Red", 1, "jeton_bonus"));
+    paquet.push(new Carte(3, 6, genererCout(0, 5, 0, 0, 3, 1), "Red", 0, null));
+
+    // ==========================================
+    // CARTES NOIRES (Black)
+    // ==========================================
+    paquet.push(new Carte(3, 4, genererCout(4, 3, 0, 0, 0, 1), "Black", 1, "couleur_bonus"));
+    paquet.push(new Carte(3, 5, genererCout(5, 3, 0, 0, 0, 0), "Black", 0, null));
+
+    // ==========================================
+    // CARTES GRISES (Joker / Neutres)
+    // ==========================================
+    // Les cartes Joker de niveau 3 rapportent beaucoup de couronnes ou de points purs.
+    paquet.push(new Carte(3, 3, genererCout(3, 3, 3, 0, 0, 1), "Joker", 2, null));
+    paquet.push(new Carte(3, 4, genererCout(0, 0, 3, 3, 3, 1), "Joker", 1, "rejouer"));
+    paquet.push(new Carte(3, 7, genererCout(2, 2, 2, 2, 2, 1), "Joker", 0, null));
+
+    // On mélange le paquet avant de le renvoyer
+    return paquet.sort(() => Math.random() - 0.5);
+}
+
+
+
+
 
 function remplirPlateau(plateau, poche) {
     const chemin = [
@@ -126,7 +300,9 @@ io.on('connection', (socket) => {
         etatPartie.poche = creerPocheJeton();
         let plateauVide = creerPlateau();
         etatPartie.plateau = remplirPlateau(plateauVide, etatPartie.poche);
-        etatPartie.paquet = creerPaquet();
+        etatPartie.paquetLv1 = creerPaquetNiveau1();
+        etatPartie.paquetLv2 = creerPaquetNiveau2();
+        etatPartie.paquetLv3 = creerPaquetNiveau3();
 
         console.log("Partie initialisée ! Envoi des données aux joueurs...");
         io.emit('mise_a_jour_partie', etatPartie);
