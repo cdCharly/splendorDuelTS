@@ -169,7 +169,7 @@ io.on('connection', (socket) => {
             }
         });
 
-        // 4. CHANGEMENT DE TOUR : On bascule le tour
+                // 4. CHANGEMENT DE TOUR : On bascule le tour
         if (etatPartie.tourActuel === 'Player1') {
             etatPartie.tourActuel = 'Player2';
         } else {
@@ -178,20 +178,19 @@ io.on('connection', (socket) => {
 
         // 5. On renvoie le nouveau plateau à tout le monde
         io.emit('mise_a_jour_partie', etatPartie);
-    });
+    }); // <-- Ceci ferme proprement 'demande_pioche'
 
-
-
-        // On renvoie le plateau mis à jour à tout le monde
-        io.emit('mise_a_jour_partie', etatPartie);
-    });
+    // ==========================================
+    // SUPPRIMEZ les anciens io.emit et }); qui traînaient ici
+    // ==========================================
 
     // Déconnexion
     socket.on('disconnect', () => {
         console.log(`Déconnexion : ${socket.id}`);
         connexions = connexions.filter(c => c.id !== socket.id);
-});
+    }); // <-- Ceci ferme proprement 'disconnect'
 
+}); // <-- NOUVEAU : Il manquait ceci pour fermer proprement io.on('connection', ...)
 
 // Lancement du serveur
 server.listen(3000, () => {
