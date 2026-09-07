@@ -37,17 +37,18 @@
 
 
             <!-- Zone d'affichage des jetons récoltés -->
-    <div class="zone-inventaires">
-        <div id="inventaire-j1" class="inventaire-joueur">
-            <h3>Joueur 1</h3>
-            <div id="poche-j1" class="contenu-poche"></div>
-        </div>
-
-        <div id="inventaire-j2" class="inventaire-joueur">
-            <h3>Joueur 2</h3>
-            <div id="poche-j2" class="contenu-poche"></div>
-        </div>
+        <!-- L'inventaire de l'adversaire (sera placé en haut à droite en CSS) -->
+    <div id="zone-adversaire" class="inventaire-adversaire">
+        <h3 id="titre-adversaire">Adversaire</h3>
+        <div id="poche-adversaire" class="contenu-poche"></div>
     </div>
+
+    <!-- L'inventaire du joueur local (en dessous du plateau) -->
+    <div id="zone-locale" class="inventaire-local">
+        <h3 id="titre-local">Mes jetons</h3>
+        <div id="poche-locale" class="contenu-poche"></div>
+    </div>
+
 
 
 

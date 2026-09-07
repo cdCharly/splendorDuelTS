@@ -71,22 +71,30 @@ body{
 }
 
 
-/* Conteneur global qui place les inventaires côte à côte */
-.zone-inventaires {
-    display: flex;
-    justify-content: center;
-    gap: 50px;
-    margin-top: 30px;
-}
-
-/* Le bloc de chaque joueur */
-.inventaire-joueur {
-    background-color: rgba(0, 0, 0, 0.1);
+/* L'inventaire de l'adversaire épinglé en haut à droite */
+.inventaire-adversaire {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(200, 50, 50, 0.1); /* Légèrement rouge pour différencier */
     padding: 15px;
     border-radius: 10px;
     width: 250px;
     text-align: center;
 }
+
+/* L'inventaire local (Le mien) centré sous le plateau */
+.inventaire-local {
+    background-color: rgba(50, 200, 50, 0.1); /* Légèrement vert */
+    padding: 15px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+    margin: 30px auto; /* Le "auto" permet de le centrer horizontalement */
+}
+
+/* Vous pouvez garder les classes .contenu-poche et .jeton-poche exactements comme avant ! */
+
 
 /* La zone où s'empilent les jetons */
 .contenu-poche {

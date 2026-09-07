@@ -147,13 +147,13 @@ function validerPioche() {
 
 
 function afficherInventaires(joueurs) {
-    const pocheJ1 = document.getElementById("poche-j1");
-    const pocheJ2 = document.getElementById("poche-j2");
+    const pocheLocale = document.getElementById("poche-locale");
+    const pocheAdversaire = document.getElementById("poche-adversaire");
     
-    pocheJ1.innerHTML = ""; // On vide avant de redessiner
-    pocheJ2.innerHTML = "";
+    pocheLocale.innerHTML = ""; 
+    pocheAdversaire.innerHTML = "";
 
-    // Fonction outil pour créer le code HTML d'un jeton
+    // Fonction pour créer un jeton visuel
     function creerElementJeton(jeton) {
         const div = document.createElement("div");
         div.classList.add("jeton-poche");
@@ -168,17 +168,29 @@ function afficherInventaires(joueurs) {
         return div;
     }
 
-    // Si le joueur 1 existe, on dessine ses jetons
-    if (joueurs['Player1']) {
-        joueurs['Player1'].poche.forEach(jeton => {
-            pocheJ1.appendChild(creerElementJeton(jeton));
+    // Déduction : Qui suis-je et qui est mon adversaire ?
+    let monId = monRole; 
+    let adversaireId = (monRole === "Player1") ? "Player2" : "Player1";
+
+    // Cas particulier : Si quelqu'un observe la partie sans jouer (Spectateur)
+    if (monRole === "Spectateur") {
+        monId = "Player1";
+        adversaireId = "Player2";
+        document.getElementById("titre-local").innerText = "Joueur 1";
+        document.getElementById("titre-adversaire").innerText = "Joueur 2";
+    }
+
+    // 1. Remplir ma propre poche (en bas)
+    if (joueurs[monId]) {
+        joueurs[monId].poche.forEach(jeton => {
+            pocheLocale.appendChild(creerElementJeton(jeton));
         });
     }
 
-    // Si le joueur 2 existe, on dessine ses jetons
-    if (joueurs['Player2']) {
-        joueurs['Player2'].poche.forEach(jeton => {
-            pocheJ2.appendChild(creerElementJeton(jeton));
+    // 2. Remplir la poche de l'adversaire (en haut à droite)
+    if (joueurs[adversaireId]) {
+        joueurs[adversaireId].poche.forEach(jeton => {
+            pocheAdversaire.appendChild(creerElementJeton(jeton));
         });
     }
 }
