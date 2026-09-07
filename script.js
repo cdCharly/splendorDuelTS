@@ -19,9 +19,9 @@ socket.on('role_attribue', (role) => {
 
 
 function afficherRivieres(etatServeur) {
-    const colLv1 = document.getElementById('colonne-lv1');
-    const colLv2 = document.getElementById('colonne-lv2');
-    const colLv3 = document.getElementById('colonne-lv3');
+    const colLv1 = document.getElementById('colonneLv1');
+    const colLv2 = document.getElementById('colonneLv2');
+    const colLv3 = document.getElementById('colonneLv3');
 
     // 1. On réinitialise les colonnes en ne gardant que l'image du dos de la pioche
     colLv1.innerHTML = `<div class="dos-pioche" style="background-image: url('apercus/cartelv1.png');"></div>`;
@@ -54,7 +54,7 @@ function afficherRivieres(etatServeur) {
 socket.on('mise_a_jour_partie', (etatServeur) => {
     console.log("Mise à jour reçue du serveur !");
     afficherPlateau(etatServeur.plateau);
-    afficherPaquetCarte(etatServeur.paquet);
+    // afficherPaquetCarte(etatServeur.paquet);
 
     afficherInventaires(etatServeur.joueurs);
     afficherRivieres(etatServeur);
