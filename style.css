@@ -32,3 +32,40 @@ body{
     transform: scale(1.1); /* Petit effet de zoom */
     transition: 0.2s;
 }
+
+/* Le conteneur principal épinglé à gauche */
+.zone-cartes-gauche {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 20px; /* Espace horizontal entre les 3 colonnes */
+}
+
+/* Chaque colonne gère son propre empilement vertical */
+.colonne-niveau {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espace vertical entre la pioche et les cartes */
+}
+
+/* Style commun pour toutes les cartes (pioches et cartes visibles) */
+.dos-pioche, .carte-noire {
+    width: 80px;  /* Ajustez la taille selon vos images */
+    height: 120px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+}
+
+/* Spécifique aux dos de pioche */
+.dos-pioche {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid white;
+}
+
+/* Spécifique aux carrés noirs */
+.carte-noire {
+    background-color: black;
+}
