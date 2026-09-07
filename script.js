@@ -18,9 +18,16 @@ socket.on('role_attribue', (role) => {
 // Le serveur nous envoie l'état officiel de la partie (le vrai plateau)
 socket.on('mise_a_jour_partie', (etatServeur) => {
     console.log("Mise à jour reçue du serveur !");
-    // On dessine le plateau et les cartes en utilisant UNIQUEMENT les données du serveur
     afficherPlateau(etatServeur.plateau);
     afficherPaquetCarte(etatServeur.paquet);
+    
+    if(monRole === etatServeur.tourActuel){
+        console.log("je joue");
+    }
+    else{
+        console.log("à l'autre joueur de jouer");
+    }
+    
 });
 
 // ==========================================
