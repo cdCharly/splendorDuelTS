@@ -15,6 +15,41 @@ socket.on('role_attribue', (role) => {
     console.log(`Je suis ${monRole}`);
 });
 
+
+
+
+function afficherRivieres(etatServeur) {
+    const colLv1 = document.getElementById('colonne-lv1');
+    const colLv2 = document.getElementById('colonne-lv2');
+    const colLv3 = document.getElementById('colonne-lv3');
+
+    // 1. On réinitialise les colonnes en ne gardant que l'image du dos de la pioche
+    colLv1.innerHTML = `<div class="dos-pioche" style="background-image: url('apercus/cartelv1.png');"></div>`;
+    colLv2.innerHTML = `<div class="dos-pioche" style="background-image: url('apercus/cartelv2.png');"></div>`;
+    colLv3.innerHTML = `<div class="dos-pioche" style="background-image: url('apercus/cartelv3.png');"></div>`;
+
+    // 2. Boucle pour le Niveau 1 (On affiche les 5 premières cartes maximum)
+    let maxLv1 = Math.min(5, etatServeur.paquetLv1.length);
+    for (let i = 0; i < maxLv1; i++) {
+        colLv1.appendChild(creerElementCarte(etatServeur.paquetLv1[i]));
+    }
+
+    // 3. Boucle pour le Niveau 2 (On affiche 4 cartes maximum)
+    let maxLv2 = Math.min(4, etatServeur.paquetLv2.length);
+    for (let i = 0; i < maxLv2; i++) {
+        colLv2.appendChild(creerElementCarte(etatServeur.paquetLv2[i]));
+    }
+
+    // 4. Boucle pour le Niveau 3 (On affiche 3 cartes maximum)
+    let maxLv3 = Math.min(3, etatServeur.paquetLv3.length);
+    for (let i = 0; i < maxLv3; i++) {
+        colLv3.appendChild(creerElementCarte(etatServeur.paquetLv3[i]));
+    }
+}
+
+
+
+
 // Le serveur nous envoie l'état officiel de la partie (le vrai plateau)
 socket.on('mise_a_jour_partie', (etatServeur) => {
     console.log("Mise à jour reçue du serveur !");
@@ -22,6 +57,7 @@ socket.on('mise_a_jour_partie', (etatServeur) => {
     afficherPaquetCarte(etatServeur.paquet);
 
     afficherInventaires(etatServeur.joueurs);
+    afficherRivieres(etatServeur);
     
     if(monRole === etatServeur.tourActuel){
         console.log("je joue");
@@ -237,3 +273,4 @@ function creerElementCarte(carte) {
 
     return divCarte;
 }
+
