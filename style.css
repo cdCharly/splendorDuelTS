@@ -69,3 +69,43 @@ body{
 .carte-noire {
     background-color: black;
 }
+
+
+/* Conteneur global qui place les inventaires côte à côte */
+.zone-inventaires {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 30px;
+}
+
+/* Le bloc de chaque joueur */
+.inventaire-joueur {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+}
+
+/* La zone où s'empilent les jetons */
+.contenu-poche {
+    display: flex;
+    flex-wrap: wrap; /* Permet de passer à la ligne s'il y a trop de jetons */
+    gap: 8px;
+    justify-content: center;
+    min-height: 50px;
+}
+
+/* Le style d'un jeton dans la poche (un peu plus petit) */
+.jeton-poche {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.3);
+}

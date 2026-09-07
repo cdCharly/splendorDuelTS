@@ -20,6 +20,8 @@ socket.on('mise_a_jour_partie', (etatServeur) => {
     console.log("Mise à jour reçue du serveur !");
     afficherPlateau(etatServeur.plateau);
     afficherPaquetCarte(etatServeur.paquet);
+
+    afficherInventaires(etatServeur.joueurs);
     
     if(monRole === etatServeur.tourActuel){
         console.log("je joue");
@@ -141,4 +143,42 @@ function validerPioche() {
 
     // On dit au serveur : "Voici les cases que je veux prendre"
     socket.emit('demande_pioche', demande);
+}
+
+
+function afficherInventaires(joueurs) {
+    const pocheJ1 = document.getElementById("poche-j1");
+    const pocheJ2 = document.getElementById("poche-j2");
+    
+    pocheJ1.innerHTML = ""; // On vide avant de redessiner
+    pocheJ2.innerHTML = "";
+
+    // Fonction outil pour créer le code HTML d'un jeton
+    function creerElementJeton(jeton) {
+        const div = document.createElement("div");
+        div.classList.add("jeton-poche");
+        div.style.backgroundColor = jeton.couleur.toLowerCase();
+        
+        if (jeton.couleur === "White" || jeton.couleur === "Gold") {
+            div.style.color = "black";
+        } else {
+            div.style.color = "white";
+        }
+        div.innerText = jeton.couleur.charAt(0);
+        return div;
+    }
+
+    // Si le joueur 1 existe, on dessine ses jetons
+    if (joueurs['Player1']) {
+        joueurs['Player1'].poche.forEach(jeton => {
+            pocheJ1.appendChild(creerElementJeton(jeton));
+        });
+    }
+
+    // Si le joueur 2 existe, on dessine ses jetons
+    if (joueurs['Player2']) {
+        joueurs['Player2'].poche.forEach(jeton => {
+            pocheJ2.appendChild(creerElementJeton(jeton));
+        });
+    }
 }
