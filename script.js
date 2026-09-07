@@ -47,14 +47,25 @@ function afficherPlateau(plateau) {
             const jeton = plateau[i][j];
             
             if (jeton !== null) {
-                caseDiv.innerText = jeton.couleur.charAt(0); 
-                caseDiv.style.color = jeton.couleur.toLowerCase();
+    // 1. Applique la couleur du jeton comme fond d'écran de la case
+    caseDiv.style.backgroundColor = jeton.couleur.toLowerCase();
+    
+    // 2. Adapte la couleur du texte pour qu'il reste lisible
+    if (jeton.couleur === "White" || jeton.couleur === "Gold") {
+        caseDiv.style.color = "black";
+    } else {
+        caseDiv.style.color = "white";
+    }
+    
+    // 3. Affiche la première lettre
+    caseDiv.innerText = jeton.couleur.charAt(0); 
 
-                // On rend la case cliquable
-                caseDiv.onclick = function() {
-                    cliquerJeton(i, j, jeton, caseDiv);
-                };
-            }
+    // 4. Rend le jeton cliquable
+    caseDiv.onclick = function() {
+        cliquerJeton(i, j, jeton, caseDiv);
+    };
+}
+
             conteneur.appendChild(caseDiv);
         }
     }
