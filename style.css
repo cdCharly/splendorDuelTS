@@ -7,6 +7,9 @@
     margin-top: 20px;
 
     background-image: url('apercus/plateausplendorduel.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .case {
