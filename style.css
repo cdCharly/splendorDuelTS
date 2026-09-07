@@ -117,3 +117,46 @@ body{
     box-shadow: 0 3px 5px rgba(0,0,0,0.4);
     border: 1px solid rgba(255,255,255,0.3);
 }
+
+
+/* La base de la carte */
+.carte-visible {
+    width: 80px;
+    height: 120px;
+    border-radius: 8px;
+    position: relative; /* Indispensable pour placer les éléments à l'intérieur */
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+    border: 2px solid white;
+    cursor: pointer;
+}
+
+/* Les points de victoire (Haut Gauche) */
+.carte-points {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px black; /* Contour noir pour rester lisible même sur fond clair */
+}
+
+/* Le conteneur des coûts (Bas Gauche) */
+.carte-cout {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    display: flex;
+    flex-wrap: wrap; /* Les points passent à la ligne s'il y en a trop */
+    gap: 3px;
+    width: 35px; /* Limite la largeur pour forcer un petit bloc compact */
+}
+
+/* Le design d'un "point" de coût */
+.point-cout {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}

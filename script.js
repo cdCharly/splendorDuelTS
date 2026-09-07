@@ -194,3 +194,46 @@ function afficherInventaires(joueurs) {
         });
     }
 }
+
+
+function creerElementCarte(carte) {
+    const divCarte = document.createElement("div");
+    divCarte.classList.add("carte-visible");
+
+    // 1. Gérer la couleur de fond
+    let couleurFond = carte.couleur.toLowerCase();
+    if (couleurFond === "joker") couleurFond = "#888888"; // Gris pour les cartes neutres
+    if (couleurFond === "white") couleurFond = "#e0e0e0"; // Gris très clair pour le blanc
+    if (couleurFond === "pink") couleurFond = "#ffb6c1"; 
+    divCarte.style.backgroundColor = couleurFond;
+
+    // 2. Afficher les points (en haut à gauche)
+    if (carte.points > 0) {
+        const divPoints = document.createElement("div");
+        divPoints.classList.add("carte-points");
+        divPoints.innerText = carte.points;
+        divCarte.appendChild(divPoints);
+    }
+
+    // 3. Afficher le coût (en bas à gauche)
+    const divCout = document.createElement("div");
+    divCout.classList.add("carte-cout");
+
+    // On crée un petit point pour chaque jeton du coût
+    carte.cout.forEach(jeton => {
+        const point = document.createElement("div");
+        point.classList.add("point-cout");
+        
+        // La couleur du point correspond au jeton demandé 
+        // (remplacez par point.style.backgroundColor = "red" si vous voulez que tout soit strictement rouge)
+        let couleurJeton = jeton.couleur.toLowerCase();
+        if (couleurJeton === "white") couleurJeton = "white";
+        
+        point.style.backgroundColor = couleurJeton;
+        divCout.appendChild(point);
+    });
+
+    divCarte.appendChild(divCout);
+
+    return divCarte;
+}
