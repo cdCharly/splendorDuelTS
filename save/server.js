@@ -5,14 +5,12 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-// Configuration de Socket.IO pour accepter les connexions de votre site
+// config socket
 const io = new Server(server, {
     cors: { origin: "*" }
 });
 
-// ==========================================
-// 1. CLASSES DU JEU
-// ==========================================
+// classes du jeu
 class Carte {
     constructor(niveau, points, cout, couleur) {
         this.niveau = niveau;
@@ -34,14 +32,12 @@ class Joueur {
     constructor(nom, role) {
         this.nom = nom;
         this.role = role;
-        this.paquet = []; // Cartes achetées
-        this.poche = [];  // Jetons récoltés
+        this.paquet = []; // cartes achetées
+        this.poche = [];  // jetons recoltés
     }
 }
 
-// ==========================================
-// 2. ÉTAT GLOBAL DE LA PARTIE
-// ==========================================
+// etat de la partie
 let connexions = []; // Stocke les ID Socket et les rôles
 let etatPartie = {
     plateau: [],
@@ -51,9 +47,7 @@ let etatPartie = {
     tourActuel: "Player1"
 };
 
-// ==========================================
-// 3. FONCTIONS D'INITIALISATION
-// ==========================================
+// initialisation de la partie
 function creerPlateau() {
     let plateau = [];
     for (let i = 0; i < 5; i++) {
@@ -106,9 +100,12 @@ function remplirPlateau(plateau, poche) {
     return plateau;
 }
 
-// ==========================================
-// 4. GESTION DU RÉSEAU (SOCKET.IO)
-// ==========================================
+
+
+
+// gestion des connections réseau
+
+
 io.on('connection', (socket) => {
     console.log(`Nouvelle connexion détectée : ${socket.id}`);
 

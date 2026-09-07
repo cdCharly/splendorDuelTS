@@ -5,6 +5,8 @@
     grid-template-rows: repeat(5, 60px);    /* 5 lignes de 60 pixels */
     gap: 5px;                               /* Espace entre les cases */
     margin-top: 20px;
+
+    background-image: url('apercus/plateausplendorduel.png');
 }
 
 .case {
