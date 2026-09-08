@@ -376,9 +376,24 @@ io.on('connection', (socket) => {
         io.emit('mise_a_jour_partie', etatPartie);
     }); // <-- Ceci ferme proprement 'demande_pioche'
 
-    // ==========================================
-    // SUPPRIMEZ les anciens io.emit et }); qui traînaient ici
-    // ==========================================
+
+        socket.on('demande_achat_carte', (donnees) => {
+        let client = connexions.find(c => c.id === socket.id);
+        
+        // Vérification du tour
+        if (!client || client.role !== etatPartie.tourActuel) return;
+
+        // On déplace la carte (Ici, il faudra aussi ajouter la vérification du coût plus tard !)
+        deplacerCarte(donnees.niveau, donnees.index, client.role);
+
+        // On bascule le tour
+        etatPartie.tourActuel = (etatPartie.tourActuel === 'Player1') ? 'Player2' : 'Player1';
+
+        // On met à jour tous les écrans
+        io.emit('mise_a_jour_partie', etatPartie);
+    });
+
+
 
     // Déconnexion
     socket.on('disconnect', () => {
@@ -386,7 +401,26 @@ io.on('connection', (socket) => {
         connexions = connexions.filter(c => c.id !== socket.id);
     }); // <-- Ceci ferme proprement 'disconnect'
 
-}); // <-- NOUVEAU : Il manquait ceci pour fermer proprement io.on('connection', ...)
+}); 
+
+
+
+
+// Fonction pour déplacer une carte vers l'inventaire d'un joueur
+function deplacerCarte(niveauPaquet, indexCarte, roleJoueur) {
+    let paquetSource;
+    if (niveauPaquet === 1) paquetSource = etatPartie.paquetLv1;
+    else if (niveauPaquet === 2) paquetSource = etatPartie.paquetLv2;
+    else if (niveauPaquet === 3) paquetSource = etatPartie.paquetLv3;
+
+    // On retire la carte de la rivière
+    let carteAchetee = paquetSource.splice(indexCarte, 1)[0];
+    
+    // On change le propriétaire et on l'ajoute au joueur
+    carteAchetee.owner = roleJoueur;
+    etatPartie.joueurs[roleJoueur].paquet.push(carteAchetee);
+}
+
 
 // Lancement du serveur
 server.listen(3000, () => {

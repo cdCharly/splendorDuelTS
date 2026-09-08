@@ -298,6 +298,17 @@ function creerElementCarte(carte) {
         divCout.appendChild(point);
     });
 
+
+        // (À l'intérieur de creerElementCarte)
+    divCarte.onclick = function() {
+        // Envoi de la demande au serveur avec les infos de la carte choisie
+        socket.emit('demande_achat_carte', { 
+            niveau: carte.niveau, 
+            index: carte.indexAffiche // Il faudra passer cet index lors de votre boucle d'affichage
+        });
+    };
+
+
     divCarte.appendChild(divCout);
 
     return divCarte;
