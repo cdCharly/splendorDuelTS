@@ -365,6 +365,31 @@ io.on('connection', (socket) => {
             }
         });
 
+        let compteurRoses = 0;
+
+        selection.forEach(choix => {
+            if (etatPartie.plateau[choix.ligne] !== undefined && etatPartie.plateau[choix.ligne][choix.colonne] !== undefined) {
+                let jeton = etatPartie.plateau[choix.ligne][choix.colonne];
+                
+                if (jeton) {
+                    // On détecte la perle avant de la ranger
+                    if (jeton.couleur === "Pink") {
+                        compteurRoses++;
+                    }
+
+                    jeton.owner = instanceJoueur.nom;
+                    instanceJoueur.poche.push(jeton);
+                    etatPartie.plateau[choix.ligne][choix.colonne] = null;
+                }
+            }
+        });
+
+        // NOUVEAU : Attribution du privilège si 2 jetons roses sont pris
+        if (compteurRoses === 2) {
+            let roleAdversaire = (client.role === 'Player1') ? 'Player2' : 'Player1';
+            bougerPrivilege(roleAdversaire);
+        }
+
                 // 4. CHANGEMENT DE TOUR : On bascule le tour
         if (etatPartie.tourActuel === 'Player1') {
             etatPartie.tourActuel = 'Player2';
@@ -441,6 +466,28 @@ function deplacerCarte(niveauPaquet, indexCarte, roleJoueur) {
     // On change le propriétaire et on l'ajoute au joueur
     carteAchetee.owner = roleJoueur;
     etatPartie.joueurs[roleJoueur].paquet.push(carteAchetee);
+}
+
+
+function bougerPrivilege(roleBeneficiaire) {
+    let joueur = etatPartie.joueurs[roleBeneficiaire];
+    let roleAdversaire = (roleBeneficiaire === 'Player1') ? 'Player2' : 'Player1';
+    let adversaire = etatPartie.joueurs[roleAdversaire];
+
+    // 1. S'il reste des privilèges sur le plateau, on en prend un
+    if (etatPartie.privileges.length > 0) {
+        let priv = etatPartie.privileges.pop(); // Retire le dernier du plateau
+        priv.owner = roleBeneficiaire;
+        joueur.privileges.push(priv);
+        console.log("privilege récupéré");
+    } 
+    // 2. Sinon, on en vole un à l'adversaire (s'il en a)
+    else if (adversaire.privileges.length > 0) {
+        let priv = adversaire.privileges.pop();
+        priv.owner = roleBeneficiaire;
+        joueur.privileges.push(priv);
+        console.log("privilege volé");
+    }
 }
 
 
