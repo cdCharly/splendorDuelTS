@@ -304,7 +304,7 @@ function creerElementCarte(carte, indexCarte) {
         // Envoi de la demande au serveur avec les infos de la carte choisie
         socket.emit('demande_achat_carte', { 
             niveau: carte.niveau, 
-            index: carte.indexCarte // Il faudra passer cet index lors de votre boucle d'affichage
+            index: indexCarte // Il faudra passer cet index lors de votre boucle d'affichage
         });
     };
 

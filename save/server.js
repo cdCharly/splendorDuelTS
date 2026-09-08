@@ -379,6 +379,41 @@ io.on('connection', (socket) => {
 
     
 
+    socket.on('demande_achat_carte', (donnees) => {
+        let client = connexions.find(c => c.id === socket.id);
+        
+        // 1. On vérifie si c'est bien le tour du joueur
+        if (!client || client.role !== etatPartie.tourActuel) return;
+
+        let joueur = etatPartie.joueurs[client.role];
+        let paquetSource = (donnees.niveau === 1) ? etatPartie.paquetLv1 : 
+                           (donnees.niveau === 2) ? etatPartie.paquetLv2 : etatPartie.paquetLv3;
+
+        let carteCible = paquetSource[donnees.index];
+        if (!carteCible) return;
+
+        // 2. Le joueur rend les jetons correspondants à la banque (poche centrale)
+        carteCible.cout.forEach(jetonDemande => {
+            let indexJetonJoueur = joueur.poche.findIndex(j => j.couleur === jetonDemande.couleur);
+            
+            if (indexJetonJoueur !== -1) {
+                let jetonPaye = joueur.poche.splice(indexJetonJoueur, 1)[0];
+                jetonPaye.owner = "nobody";
+                etatPartie.poche.push(jetonPaye);
+            }
+        });
+
+        // 3. On utilise votre fonction pour donner la carte au joueur
+        deplacerCarte(donnees.niveau, donnees.index, client.role);
+
+        // 4. On bascule le tour (sauf si la carte permet de rejouer)
+        if (carteCible.pouvoir !== "rejouer") {
+            etatPartie.tourActuel = (etatPartie.tourActuel === 'Player1') ? 'Player2' : 'Player1';
+        }
+
+        // 5. On actualise tous les écrans
+        io.emit('mise_a_jour_partie', etatPartie);
+    });
 
 
 
