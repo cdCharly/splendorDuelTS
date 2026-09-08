@@ -377,21 +377,13 @@ io.on('connection', (socket) => {
     }); // <-- Ceci ferme proprement 'demande_pioche'
 
 
-        socket.on('demande_achat_carte', (donnees) => {
-        let client = connexions.find(c => c.id === socket.id);
-        
-        // Vérification du tour
-        if (!client || client.role !== etatPartie.tourActuel) return;
+            // Exemple pour la boucle de Niveau 1
+    let maxLv1 = Math.min(5, etatServeur.paquetLv1.length);
+    for (let i = 0; i < maxLv1; i++) {
+        // On donne la carte ET sa position (i) à la fonction
+        colLv1.appendChild(creerElementCarte(etatServeur.paquetLv1[i], i));
+    }
 
-        // On déplace la carte (Ici, il faudra aussi ajouter la vérification du coût plus tard !)
-        deplacerCarte(donnees.niveau, donnees.index, client.role);
-
-        // On bascule le tour
-        etatPartie.tourActuel = (etatPartie.tourActuel === 'Player1') ? 'Player2' : 'Player1';
-
-        // On met à jour tous les écrans
-        io.emit('mise_a_jour_partie', etatPartie);
-    });
 
 
 

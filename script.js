@@ -37,19 +37,19 @@ function afficherRivieres(etatServeur) {
     // 2. Boucle pour le Niveau 1 (On affiche les 5 premières cartes maximum)
     let maxLv1 = Math.min(5, etatServeur.paquetLv1.length);
     for (let i = 0; i < maxLv1; i++) {
-        colLv1.appendChild(creerElementCarte(etatServeur.paquetLv1[i]));
+        colLv1.appendChild(creerElementCarte(etatServeur.paquetLv1[i], i));
     }
 
     // 3. Boucle pour le Niveau 2 (On affiche 4 cartes maximum)
     let maxLv2 = Math.min(4, etatServeur.paquetLv2.length);
     for (let i = 0; i < maxLv2; i++) {
-        colLv2.appendChild(creerElementCarte(etatServeur.paquetLv2[i]));
+        colLv2.appendChild(creerElementCarte(etatServeur.paquetLv2[i], i));
     }
 
     // 4. Boucle pour le Niveau 3 (On affiche 3 cartes maximum)
     let maxLv3 = Math.min(3, etatServeur.paquetLv3.length);
     for (let i = 0; i < maxLv3; i++) {
-        colLv3.appendChild(creerElementCarte(etatServeur.paquetLv3[i]));
+        colLv3.appendChild(creerElementCarte(etatServeur.paquetLv3[i], i));
     }
 }
 
@@ -261,7 +261,7 @@ function afficherInventaires(joueurs) {
 }
 
 
-function creerElementCarte(carte) {
+function creerElementCarte(carte, indexCarte) {
     const divCarte = document.createElement("div");
     divCarte.classList.add("carte-visible");
 
@@ -304,7 +304,7 @@ function creerElementCarte(carte) {
         // Envoi de la demande au serveur avec les infos de la carte choisie
         socket.emit('demande_achat_carte', { 
             niveau: carte.niveau, 
-            index: carte.indexAffiche // Il faudra passer cet index lors de votre boucle d'affichage
+            index: carte.indexCarte // Il faudra passer cet index lors de votre boucle d'affichage
         });
     };
 
