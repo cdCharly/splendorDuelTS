@@ -25,20 +25,32 @@
     <div id="plateauAffichage" class="grille-plateau" style="background-image: url('apercus/plateausplendorduel3.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
 
     <button type="button" onclick="validerPioche()">Prendre les jetons</button>
-
     <!-- L'inventaire de l'adversaire (en haut à droite) -->
     <div id="zone-adversaire" class="inventaire-adversaire">
-        <h3 id="titre-adversaire">Adversaire</h3>
-        <div id="privileges-adversaire" class="zone-privileges-joueur"></div>
-        <div id="poche-adversaire" class="contenu-poche"></div>
+        <div class="inventaire-gauche">
+            <h3 id="titre-adversaire">Adversaire</h3>
+            <div id="privileges-adversaire" class="zone-privileges-joueur"></div>
+            <div id="poche-adversaire" class="contenu-poche"></div>
+        </div>
+        <div class="inventaire-droite">
+            <h3>Cartes</h3>
+            <div id="paquet-adversaire" class="paquet-joueur"></div>
+        </div>
     </div>
 
     <!-- L'inventaire du joueur local (en dessous du plateau) -->
     <div id="zone-locale" class="inventaire-local">
-        <h3 id="titre-local">Mes jetons</h3>
-        <div id="privileges-local" class="zone-privileges-joueur"></div>
-        <div id="poche-locale" class="contenu-poche"></div>
+        <div class="inventaire-gauche">
+            <h3 id="titre-local">Mes jetons</h3>
+            <div id="privileges-local" class="zone-privileges-joueur"></div>
+            <div id="poche-locale" class="contenu-poche"></div>
+        </div>
+        <div class="inventaire-droite">
+            <h3>Mes Cartes</h3>
+            <div id="paquet-local" class="paquet-joueur"></div>
+        </div>
     </div>
+
 
     <!-- La rivière de cartes (à gauche) -->
     <div class="zone-cartes-gauche">

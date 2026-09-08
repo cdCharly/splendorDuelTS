@@ -190,6 +190,25 @@ function validerPioche() {
 
 
 function afficherInventaires(joueurs) {
+        // (Au début de afficherInventaires, ajoutez :)
+    const paquetLocal = document.getElementById("paquet-local");
+    const paquetAdversaire = document.getElementById("paquet-adversaire");
+    paquetLocal.innerHTML = "";
+    paquetAdversaire.innerHTML = "";
+    
+    // ... (votre code existant pour les jetons et privilèges) ...
+
+    // Dans le bloc if (joueurs[monId]) { ... }, ajoutez :
+    joueurs[monId].paquet.forEach(carte => {
+        // On n'envoie pas d'index, ce qui désactivera le clic !
+        paquetLocal.appendChild(creerElementCarte(carte)); 
+    });
+
+    // Dans le bloc if (joueurs[adversaireId]) { ... }, ajoutez :
+    joueurs[adversaireId].paquet.forEach(carte => {
+        paquetAdversaire.appendChild(creerElementCarte(carte));
+    });
+
     const pocheLocale = document.getElementById("poche-locale");
     const pocheAdversaire = document.getElementById("poche-adversaire");
     
@@ -298,19 +317,24 @@ function creerElementCarte(carte, indexCarte) {
         divCout.appendChild(point);
     });
 
-
-        // (À l'intérieur de creerElementCarte)
-    divCarte.onclick = function() {
-        // Envoi de la demande au serveur avec les infos de la carte choisie
-        socket.emit('demande_achat_carte', { 
-            niveau: carte.niveau, 
-            index: indexCarte // Il faudra passer cet index lors de votre boucle d'affichage
-        });
-    };
-
+    if (indexCarte !== undefined) {
+        divCarte.onclick = function() {
+            socket.emit('demande_achat_carte', { 
+                niveau: carte.niveau, 
+                index: indexCarte 
+            });
+        };
+    } else {
+        // C'est une carte dans l'inventaire, on retire le curseur "cliquable"
+        divCarte.style.cursor = "default";
+        // Optionnel : on la réduit légèrement pour gagner de la place
+        divCarte.style.transform = "scale(0.8)"; 
+        divCarte.style.transformOrigin = "top left";
+        divCarte.style.marginRight = "-15px"; // Les cartes se chevauchent un peu
+        divCarte.style.marginBottom = "-20px";
+    }
 
     divCarte.appendChild(divCout);
-
     return divCarte;
 }
 

@@ -69,31 +69,49 @@ body{
 .carte-noire {
     background-color: black;
 }
-
-
-/* L'inventaire de l'adversaire épinglé en haut à droite */
+/* Modifiez les deux classes existantes pour activer Flexbox et élargir la zone */
 .inventaire-adversaire {
     position: absolute;
     top: 20px;
     right: 20px;
-    background-color: rgba(200, 50, 50, 0.1); /* Légèrement rouge pour différencier */
+    background-color: rgba(200, 50, 50, 0.1);
     padding: 15px;
     border-radius: 10px;
+    width: auto; /* Remplace le 250px d'avant */
+    display: flex;
+    gap: 30px;
+}
+
+.inventaire-local {
+    background-color: rgba(50, 200, 50, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    width: auto; /* Remplace le 300px d'avant */
+    margin: 30px auto;
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+/* Nouvelles classes pour la disposition */
+.inventaire-gauche {
     width: 250px;
     text-align: center;
 }
 
-/* L'inventaire local (Le mien) centré sous le plateau */
-.inventaire-local {
-    background-color: rgba(50, 200, 50, 0.1); /* Légèrement vert */
-    padding: 15px;
-    border-radius: 10px;
-    width: 300px;
+.inventaire-droite {
+    width: 300px; /* Plus large pour accueillir plusieurs cartes */
     text-align: center;
-    margin: 30px auto; /* Le "auto" permet de le centrer horizontalement */
+    border-left: 2px dashed rgba(0,0,0,0.2);
+    padding-left: 20px;
 }
 
-/* Vous pouvez garder les classes .contenu-poche et .jeton-poche exactements comme avant ! */
+.paquet-joueur {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+}
 
 
 /* La zone où s'empilent les jetons */
