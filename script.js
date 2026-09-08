@@ -18,6 +18,12 @@ socket.on('role_attribue', (role) => {
 
 
 
+// fonction privilèges
+
+
+
+
+
 function afficherRivieres(etatServeur) {
     const colLv1 = document.getElementById('colonneLv1');
     const colLv2 = document.getElementById('colonneLv2');
@@ -58,6 +64,7 @@ socket.on('mise_a_jour_partie', (etatServeur) => {
 
     afficherInventaires(etatServeur.joueurs);
     afficherRivieres(etatServeur);
+    afficherPrivileges(etatServeur);
     
     if(monRole === etatServeur.tourActuel){
         console.log("je joue");
@@ -216,8 +223,26 @@ function afficherInventaires(joueurs) {
         document.getElementById("titre-adversaire").innerText = "Joueur 2";
     }
 
-    // 1. Remplir ma propre poche (en bas)
+
+
+    const privLocale = document.getElementById("privileges-local");
+    const privAdversaire = document.getElementById("privileges-adversaire");
+    privLocale.innerHTML = "";
+    privAdversaire.innerHTML = "";
+
+    function creerElementPrivilege() {
+        const div = document.createElement("div");
+        div.classList.add("privilege-visuel");
+        div.style.backgroundImage = "url('apercus/privilege.png')";
+        return div;
+    }
+
+
     if (joueurs[monId]) {
+        joueurs[monId].privileges.forEach(() => {
+            privLocale.appendChild(creerElementPrivilege());
+        });
+
         joueurs[monId].poche.forEach(jeton => {
             pocheLocale.appendChild(creerElementJeton(jeton));
         });
@@ -225,6 +250,10 @@ function afficherInventaires(joueurs) {
 
     // 2. Remplir la poche de l'adversaire (en haut à droite)
     if (joueurs[adversaireId]) {
+        joueurs[adversaireId].privileges.forEach(() => {
+            privAdversaire.appendChild(creerElementPrivilege());
+        });
+
         joueurs[adversaireId].poche.forEach(jeton => {
             pocheAdversaire.appendChild(creerElementJeton(jeton));
         });
@@ -274,3 +303,17 @@ function creerElementCarte(carte) {
     return divCarte;
 }
 
+
+
+function afficherPrivileges(etatServeur) {
+    const zonePlateau = document.getElementById("zone-privileges-plateau");
+    zonePlateau.innerHTML = "";
+
+    // 1. Affiche les privilèges restants sur le plateau
+    etatServeur.privileges.forEach(() => {
+        const div = document.createElement("div");
+        div.classList.add("privilege-visuel");
+        div.style.backgroundImage = "url('apercus/privilege.png')";
+        zonePlateau.appendChild(div);
+    });
+}

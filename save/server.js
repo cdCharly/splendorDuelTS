@@ -28,12 +28,20 @@ class Jeton {
     }
 }
 
+class Privilege {
+    constructor(numero, owner){
+        this.numero = numero;   // le combientieme privilege sur le jeu (0 à 2) 1 à 3
+        this.owner = owner;
+    }
+}
+
 class Joueur {
     constructor(nom, role) {
         this.nom = nom;
         this.role = role;
         this.paquet = []; // cartes achetées
         this.poche = [];  // jetons recoltés
+        this.privileges = [];
     }
 }
 
@@ -46,6 +54,7 @@ let etatPartie = {
     paquetLv2: [],
     paquetLv3: [],
     joueurs: {},
+    privileges: [],
     tourActuel: "Player1"
 };
 
@@ -57,6 +66,16 @@ function creerPlateau() {
     }
     return plateau;
 }
+
+
+function creerPrivileges(){
+    p1 = new Privilege(1,"plateau");
+    p2 = new Privilege(2,"plateau");
+    p3 = new Privilege(3,"plateau");
+
+    return [p1,p2,p3];
+}
+
 
 function creerPocheJeton() {
     const poche = [];
@@ -303,6 +322,7 @@ io.on('connection', (socket) => {
         etatPartie.paquetLv1 = creerPaquetNiveau1();
         etatPartie.paquetLv2 = creerPaquetNiveau2();
         etatPartie.paquetLv3 = creerPaquetNiveau3();
+        etatPartie.privileges = creerPrivileges();
 
         console.log("Partie initialisée ! Envoi des données aux joueurs...");
         io.emit('mise_a_jour_partie', etatPartie);

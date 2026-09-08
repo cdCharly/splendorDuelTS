@@ -160,3 +160,39 @@ body{
     border: 1px solid rgba(0, 0, 0, 0.8);
     box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
+
+
+/* Zone pour les privilèges au centre de la table */
+.zone-privileges {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    min-height: 60px;
+}
+
+/* Zone pour les privilèges gagnés dans les inventaires */
+.zone-privileges-joueur {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 10px;
+    min-height: 45px;
+}
+
+/* Visuel du privilège */
+.privilege-visuel {
+    width: 45px;
+    height: 60px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    border: 2px solid #ffd700; /* Bordure dorée */
+}
+
+/* Visuel plus petit pour l'inventaire */
+.zone-privileges-joueur .privilege-visuel {
+    width: 30px;
+    height: 40px;
+}

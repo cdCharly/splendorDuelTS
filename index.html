@@ -13,85 +13,64 @@
 </head>
 
 <body>
-<!-- le bouton appele la fonction declencherAffichage--> 
+    <!-- Zone de test pour l'affichage brut --> 
     <button type="button" onclick="declencherAffichage()">Afficher Paquet</button>
-    
-    <!-- endroit ou le paquet crée les balises p avec les infos dedans-->
     <div id="paquet-affichage"></div>
 
+    <!-- Titre et privilèges du plateau central -->
+    <h2 id="plateauName" class="plateau-name">Plateau de Jeu</h2>
+    <div id="zone-privileges-plateau" class="zone-privileges"></div>
 
-    <!-- À ajouter dans la balise <body> de index.html -->
-    <h2 id = "plateauName" class="plateau-name">Plateau de Jeu</h2>
-    
-    <!--
-    <div id="plateauAffichage" class="grille-plateau"></div>
-    ca fonctionne mieux avec la balise
-    -->
-    <div id="plateauAffichage" class="grille-plateau" style="background-image: url('apercus/plateausplendorduel3.png');
-            background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
-
+    <!-- Le plateau de jeu -->
+    <div id="plateauAffichage" class="grille-plateau" style="background-image: url('apercus/plateausplendorduel3.png'); background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
 
     <button type="button" onclick="validerPioche()">Prendre les jetons</button>
 
-
-
-
-            <!-- Zone d'affichage des jetons récoltés -->
-        <!-- L'inventaire de l'adversaire (sera placé en haut à droite en CSS) -->
+    <!-- L'inventaire de l'adversaire (en haut à droite) -->
     <div id="zone-adversaire" class="inventaire-adversaire">
         <h3 id="titre-adversaire">Adversaire</h3>
+        <div id="privileges-adversaire" class="zone-privileges-joueur"></div>
         <div id="poche-adversaire" class="contenu-poche"></div>
     </div>
 
     <!-- L'inventaire du joueur local (en dessous du plateau) -->
     <div id="zone-locale" class="inventaire-local">
         <h3 id="titre-local">Mes jetons</h3>
+        <div id="privileges-local" class="zone-privileges-joueur"></div>
         <div id="poche-locale" class="contenu-poche"></div>
     </div>
 
+    <!-- La rivière de cartes (à gauche) -->
+    <div class="zone-cartes-gauche">
+        
+        <!-- Colonne Niveau 1 (Vert) -->
+        <div id="colonneLv1" class="colonne-niveau">
+            <div class="dos-pioche" style="background-image: url('apercus/cartelv1.png');"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+        </div>
 
+        <!-- Colonne Niveau 2 (Marron) -->
+        <div id="colonneLv2" class="colonne-niveau">
+            <div class="dos-pioche" style="background-image: url('apercus/cartelv2.png');"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+        </div>
 
+        <!-- Colonne Niveau 3 (Bleu) -->
+        <div id="colonneLv3" class="colonne-niveau">
+            <div class="dos-pioche" style="background-image: url('apercus/cartelv3.png');"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+            <div class="carte-noire"></div>
+        </div>
 
-
-
-
-
-
-   <div class="zone-cartes-gauche">
-    
-    <!-- Colonne Niveau 1 (Vert) -->
-    <div id = "colonneLv1" class="colonne-niveau">
-        <div class="dos-pioche" style="background-image: url('apercus/cartelv1.png');"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
     </div>
-
-    <!-- Colonne Niveau 2 (Marron) -->
-    <div id = "colonneLv2" class="colonne-niveau">
-        <div class="dos-pioche" style="background-image: url('apercus/cartelv2.png');"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-    </div>
-
-    <!-- Colonne Niveau 3 (Bleu) -->
-    <div id = "colonneLv3" class="colonne-niveau">
-        <div class="dos-pioche" style="background-image: url('apercus/cartelv3.png');"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-        <div class="carte-noire"></div>
-    </div>
-
-</div>
-
-
-    
-
-
 
 </body>
 </html>
