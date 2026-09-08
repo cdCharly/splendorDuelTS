@@ -188,34 +188,24 @@ function validerPioche() {
     socket.emit('demande_pioche', demande);
 }
 
-
 function afficherInventaires(joueurs) {
-        // (Au début de afficherInventaires, ajoutez :)
-    const paquetLocal = document.getElementById("paquet-local");
-    const paquetAdversaire = document.getElementById("paquet-adversaire");
-    paquetLocal.innerHTML = "";
-    paquetAdversaire.innerHTML = "";
-    
-    // ... (votre code existant pour les jetons et privilèges) ...
-
-    // Dans le bloc if (joueurs[monId]) { ... }, ajoutez :
-    joueurs[monId].paquet.forEach(carte => {
-        // On n'envoie pas d'index, ce qui désactivera le clic !
-        paquetLocal.appendChild(creerElementCarte(carte)); 
-    });
-
-    // Dans le bloc if (joueurs[adversaireId]) { ... }, ajoutez :
-    joueurs[adversaireId].paquet.forEach(carte => {
-        paquetAdversaire.appendChild(creerElementCarte(carte));
-    });
-
+    // 1. On récupère toutes les zones HTML
     const pocheLocale = document.getElementById("poche-locale");
     const pocheAdversaire = document.getElementById("poche-adversaire");
+    const paquetLocal = document.getElementById("paquet-local");
+    const paquetAdversaire = document.getElementById("paquet-adversaire");
+    const privLocale = document.getElementById("privileges-local");
+    const privAdversaire = document.getElementById("privileges-adversaire");
     
+    // 2. On vide tout avant de redessiner
     pocheLocale.innerHTML = ""; 
     pocheAdversaire.innerHTML = "";
+    paquetLocal.innerHTML = "";
+    paquetAdversaire.innerHTML = "";
+    privLocale.innerHTML = "";
+    privAdversaire.innerHTML = "";
 
-    // Fonction pour créer un jeton visuel
+    // 3. Fonctions outils pour dessiner les éléments
     function creerElementJeton(jeton) {
         const div = document.createElement("div");
         div.classList.add("jeton-poche");
@@ -230,25 +220,6 @@ function afficherInventaires(joueurs) {
         return div;
     }
 
-    // Déduction : Qui suis-je et qui est mon adversaire ?
-    let monId = monRole; 
-    let adversaireId = (monRole === "Player1") ? "Player2" : "Player1";
-
-    // Cas particulier : Si quelqu'un observe la partie sans jouer (Spectateur)
-    if (monRole === "Spectateur") {
-        monId = "Player1";
-        adversaireId = "Player2";
-        document.getElementById("titre-local").innerText = "Joueur 1";
-        document.getElementById("titre-adversaire").innerText = "Joueur 2";
-    }
-
-
-
-    const privLocale = document.getElementById("privileges-local");
-    const privAdversaire = document.getElementById("privileges-adversaire");
-    privLocale.innerHTML = "";
-    privAdversaire.innerHTML = "";
-
     function creerElementPrivilege() {
         const div = document.createElement("div");
         div.classList.add("privilege-visuel");
@@ -256,7 +227,18 @@ function afficherInventaires(joueurs) {
         return div;
     }
 
+    // 4. Déduction des rôles
+    let monId = monRole; 
+    let adversaireId = (monRole === "Player1") ? "Player2" : "Player1";
 
+    if (monRole === "Spectateur") {
+        monId = "Player1";
+        adversaireId = "Player2";
+        document.getElementById("titre-local").innerText = "Joueur 1";
+        document.getElementById("titre-adversaire").innerText = "Joueur 2";
+    }
+
+    // 5. Remplissage de mon inventaire (en bas)
     if (joueurs[monId]) {
         joueurs[monId].privileges.forEach(() => {
             privLocale.appendChild(creerElementPrivilege());
@@ -265,9 +247,13 @@ function afficherInventaires(joueurs) {
         joueurs[monId].poche.forEach(jeton => {
             pocheLocale.appendChild(creerElementJeton(jeton));
         });
+
+        joueurs[monId].paquet.forEach(carte => {
+            paquetLocal.appendChild(creerElementCarte(carte)); // Pas d'index envoyé = pas cliquable
+        });
     }
 
-    // 2. Remplir la poche de l'adversaire (en haut à droite)
+    // 6. Remplissage de l'inventaire adverse (en haut à droite)
     if (joueurs[adversaireId]) {
         joueurs[adversaireId].privileges.forEach(() => {
             privAdversaire.appendChild(creerElementPrivilege());
@@ -276,8 +262,13 @@ function afficherInventaires(joueurs) {
         joueurs[adversaireId].poche.forEach(jeton => {
             pocheAdversaire.appendChild(creerElementJeton(jeton));
         });
+
+        joueurs[adversaireId].paquet.forEach(carte => {
+            paquetAdversaire.appendChild(creerElementCarte(carte));
+        });
     }
 }
+
 
 
 function creerElementCarte(carte, indexCarte) {
