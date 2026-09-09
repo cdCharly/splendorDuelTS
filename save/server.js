@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: { origin: "*" },
-    path: "/splendor/socket.io/"
+    // path: "/splendor/socket.io/"
 });
 
 // classes du jeu
