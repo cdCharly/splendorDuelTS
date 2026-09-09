@@ -1,5 +1,8 @@
 // Connexion au serveur (Remplacez par votre IP si besoin)
-const socket = io("http://192.168.1.50:3000");
+// const socket = io("http://192.168.1.50:3000"); // en local ssur la vm splendorduel
+const socket = io("http://charlytech.fr", {
+    path: "/splendor/socket.io/"
+});
 
 // Variables globales pour l'interface
 let jetonsSelectionnes = [];

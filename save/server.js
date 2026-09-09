@@ -5,9 +5,9 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-// config socket
 const io = new Server(server, {
-    cors: { origin: "*" }
+    cors: { origin: "*" },
+    path: "/splendor/socket.io/"
 });
 
 // classes du jeu
