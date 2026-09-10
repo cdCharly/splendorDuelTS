@@ -346,3 +346,10 @@ function afficherPrivileges(etatServeur) {
         zonePlateau.appendChild(div);
     });
 }
+
+
+
+function demanderRemplissagePlateau() {
+    // Envoie la demande au serveur
+    socket.emit('demande_remplissage_plateau');
+}

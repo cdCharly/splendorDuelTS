@@ -480,6 +480,37 @@ io.on('connection', (socket) => {
         io.emit('mise_a_jour_partie', etatPartie);
     });
 
+    
+
+        // ==========================================
+    // ACTION : REMPLIR LE PLATEAU
+    // ==========================================
+    socket.on('demande_remplissage_plateau', () => {
+        let client = connexions.find(c => c.id === socket.id);
+        
+        // 1. Sécurité : seul le joueur dont c'est le tour peut remplir le plateau
+        if (!client || client.role !== etatPartie.tourActuel) {
+            console.log("Refusé : Ce n'est pas ton tour de remplir le plateau.");
+            return;
+        }
+
+        // 2. Identification de l'adversaire pour lui donner un privilège
+        let roleAdversaire = (client.role === 'Player1') ? 'Player2' : 'Player1';
+        bougerPrivilege(roleAdversaire);
+
+        // 3. Remplissage du plateau avec les jetons présents dans etatPartie.poche
+        etatPartie.plateau = remplirPlateau(etatPartie.plateau, etatPartie.poche);
+
+        // (Note: Dans Splendor Duel, remplir le plateau est une action optionnelle 
+        // en début de tour, cela ne met pas fin au tour. On ne change donc pas tourActuel).
+
+        // 4. On rafraîchit les écrans des joueurs
+        io.emit('mise_a_jour_partie', etatPartie);
+    });
+
+
+
+
     // ==========================================
     // DECONNEXION
     // ==========================================
@@ -487,6 +518,7 @@ io.on('connection', (socket) => {
         console.log(`Déconnexion : ${socket.id}`);
         connexions = connexions.filter(c => c.id !== socket.id);
     });
+
 
 }); 
 // FIN DU BLOC CONNECTION
