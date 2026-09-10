@@ -257,7 +257,7 @@ function afficherInventaires(joueurs) {
         document.getElementById("titre-local").innerText = "Joueur 1";
         document.getElementById("titre-adversaire").innerText = "Joueur 2";
     }
-
+    let estMonTour = (monRole !== "Spectateur" && monRole === tourActuel);
     // 5. Remplissage de mon inventaire (en bas)
     if (joueurs[monId]) {
         joueurs[monId].privileges.forEach(() => {
