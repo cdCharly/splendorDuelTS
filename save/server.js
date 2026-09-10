@@ -297,8 +297,6 @@ function remplirPlateau(plateau, poche) {
 
 
 // gestion des connections réseau
-
-
 io.on('connection', (socket) => {
     console.log(`Nouvelle connexion détectée : ${socket.id}`);
 
@@ -331,7 +329,10 @@ io.on('connection', (socket) => {
         socket.emit('mise_a_jour_partie', etatPartie);
     }
 
-        socket.on('demande_pioche', (selection) => {
+    // ==========================================
+    // ACTION : PIOCHER DES JETONS
+    // ==========================================
+    socket.on('demande_pioche', (selection) => {
         let client = connexions.find(c => c.id === socket.id);
         
         // 1. On vérifie si c'est bien le tour du joueur
@@ -342,20 +343,27 @@ io.on('connection', (socket) => {
 
         let instanceJoueur = etatPartie.joueurs[client.role];
 
-        // 2. SÉCURITÉ ANTI-CRASH : On s'assure que le client a bien envoyé un tableau
+        // 2. Sécurité : vérifier que les données sont valides
         if (!Array.isArray(selection)) {
             console.log("Erreur : Les données reçues ne sont pas valides.");
             return;
         }
 
-        // 3. Traitement des jetons
+        let compteurRoses = 0;
+
+        // 3. Traitement des jetons (boucle unifiée et corrigée)
         selection.forEach(choix => {
-            // SÉCURITÉ ANTI-CRASH : On vérifie que la ligne demandée existe avant de chercher la colonne
             if (etatPartie.plateau[choix.ligne] !== undefined && etatPartie.plateau[choix.ligne][choix.colonne] !== undefined) {
                 
                 let jeton = etatPartie.plateau[choix.ligne][choix.colonne];
                 
                 if (jeton) {
+                    // On détecte la perle AVANT de l'effacer du plateau
+                    if (jeton.couleur === "Pink") {
+                        compteurRoses++;
+                    }
+
+                    // On déplace le jeton
                     jeton.owner = instanceJoueur.nom;
                     instanceJoueur.poche.push(jeton);
                     etatPartie.plateau[choix.ligne][choix.colonne] = null;
@@ -365,49 +373,26 @@ io.on('connection', (socket) => {
             }
         });
 
-        let compteurRoses = 0;
-
-        selection.forEach(choix => {
-            if (etatPartie.plateau[choix.ligne] !== undefined && etatPartie.plateau[choix.ligne][choix.colonne] !== undefined) {
-                let jeton = etatPartie.plateau[choix.ligne][choix.colonne];
-                
-                if (jeton) {
-                    // On détecte la perle avant de la ranger
-                    if (jeton.couleur === "Pink") {
-                        compteurRoses++;
-                    }
-
-                    jeton.owner = instanceJoueur.nom;
-                    instanceJoueur.poche.push(jeton);
-                    etatPartie.plateau[choix.ligne][choix.colonne] = null;
-                }
-            }
-        });
-
-        // NOUVEAU : Attribution du privilège si 2 jetons roses sont pris
+        // 4. Attribution du privilège si 2 jetons roses sont pris
         if (compteurRoses === 2) {
             let roleAdversaire = (client.role === 'Player1') ? 'Player2' : 'Player1';
             bougerPrivilege(roleAdversaire);
         }
 
-                // 4. CHANGEMENT DE TOUR : On bascule le tour
-        if (etatPartie.tourActuel === 'Player1') {
-            etatPartie.tourActuel = 'Player2';
-        } else {
-            etatPartie.tourActuel = 'Player1';
-        }
+        // 5. Changement de tour
+        etatPartie.tourActuel = (etatPartie.tourActuel === 'Player1') ? 'Player2' : 'Player1';
 
-        // 5. On renvoie le nouveau plateau à tout le monde
+        // 6. Mise à jour de tout le monde
         io.emit('mise_a_jour_partie', etatPartie);
-    }); // <-- Ceci ferme proprement 'demande_pioche'
+    });
 
 
-    
-
+    // ==========================================
+    // ACTION : ACHETER UNE CARTE
+    // ==========================================
     socket.on('demande_achat_carte', (donnees) => {
         let client = connexions.find(c => c.id === socket.id);
         
-        // 1. On vérifie si c'est bien le tour du joueur
         if (!client || client.role !== etatPartie.tourActuel) return;
 
         let joueur = etatPartie.joueurs[client.role];
@@ -417,81 +402,134 @@ io.on('connection', (socket) => {
         let carteCible = paquetSource[donnees.index];
         if (!carteCible) return;
 
-        // 2. Le joueur rend les jetons correspondants à la banque (poche centrale)
-        carteCible.cout.forEach(jetonDemande => {
-            let indexJetonJoueur = joueur.poche.findIndex(j => j.couleur === jetonDemande.couleur);
-            
-            if (indexJetonJoueur !== -1) {
-                let jetonPaye = joueur.poche.splice(indexJetonJoueur, 1)[0];
-                jetonPaye.owner = "nobody";
-                etatPartie.poche.push(jetonPaye);
+        // 1. Calcul des bonus permanents
+        let bonus = { "White": 0, "Blue": 0, "Green": 0, "Red": 0, "Black": 0, "Pink": 0 };
+        joueur.paquet.forEach(carte => {
+            if (bonus[carte.couleur] !== undefined) {
+                bonus[carte.couleur]++;
             }
         });
 
-        // 3. On utilise votre fonction pour donner la carte au joueur
+        // 2. Calcul de ce qu'il reste à payer après réduction
+        let aPayer = { "White": 0, "Blue": 0, "Green": 0, "Red": 0, "Black": 0, "Pink": 0 };
+        carteCible.cout.forEach(jeton => {
+            aPayer[jeton.couleur]++;
+        });
+
+        Object.keys(bonus).forEach(couleur => {
+            aPayer[couleur] = Math.max(0, aPayer[couleur] - bonus[couleur]);
+        });
+
+        // 3. VÉRIFICATION AVANT PAIEMENT (Bloque les achats gratuits si fonds insuffisants)
+        let peutPayer = true;
+        let inventaireTemp = { "White": 0, "Blue": 0, "Green": 0, "Red": 0, "Black": 0, "Pink": 0, "Gold": 0 };
+        
+        // On compte ce que le joueur possède
+        joueur.poche.forEach(j => inventaireTemp[j.couleur]++);
+
+        Object.keys(aPayer).forEach(couleur => {
+            if (inventaireTemp[couleur] < aPayer[couleur]) {
+                // S'il manque des gemmes, on vérifie si l'or peut compenser
+                let manque = aPayer[couleur] - inventaireTemp[couleur];
+                if (inventaireTemp["Gold"] >= manque) {
+                    inventaireTemp["Gold"] -= manque; // Consomme l'or virtuellement
+                } else {
+                    peutPayer = false;
+                }
+            }
+        });
+
+        // Si le joueur ne peut pas payer, on annule tout
+        if (!peutPayer) {
+            console.log(`Achat refusé : ${client.role} n'a pas les ressources nécessaires.`);
+            return;
+        }
+
+        // 4. PAIEMENT RÉEL
+        Object.keys(aPayer).forEach(couleur => {
+            let quantiteRequise = aPayer[couleur];
+            
+            for (let i = 0; i < quantiteRequise; i++) {
+                let indexJetonJoueur = joueur.poche.findIndex(j => j.couleur === couleur);
+                
+                if (indexJetonJoueur !== -1) {
+                    // Paie avec la gemme normale
+                    let jetonPaye = joueur.poche.splice(indexJetonJoueur, 1)[0];
+                    jetonPaye.owner = "nobody";
+                    etatPartie.poche.push(jetonPaye);
+                } else {
+                    // Paie avec de l'Or (puisqu'on a vérifié juste avant qu'il en a assez)
+                    let indexOr = joueur.poche.findIndex(j => j.couleur === "Gold");
+                    if (indexOr !== -1) {
+                        let jetonOrPaye = joueur.poche.splice(indexOr, 1)[0];
+                        jetonOrPaye.owner = "nobody";
+                        etatPartie.poche.push(jetonOrPaye);
+                    }
+                }
+            }
+        });
+
+        // 5. On déplace la carte (et on sécurise l'indexation)
         deplacerCarte(donnees.niveau, donnees.index, client.role);
 
-        // 4. On bascule le tour (sauf si la carte permet de rejouer)
+        // 6. Bascule du tour (sauf si rejouer)
         if (carteCible.pouvoir !== "rejouer") {
             etatPartie.tourActuel = (etatPartie.tourActuel === 'Player1') ? 'Player2' : 'Player1';
         }
 
-        // 5. On actualise tous les écrans
         io.emit('mise_a_jour_partie', etatPartie);
     });
 
-
-
-    // Déconnexion
+    // ==========================================
+    // DECONNEXION
+    // ==========================================
     socket.on('disconnect', () => {
         console.log(`Déconnexion : ${socket.id}`);
         connexions = connexions.filter(c => c.id !== socket.id);
-    }); // <-- Ceci ferme proprement 'disconnect'
+    });
 
 }); 
+// FIN DU BLOC CONNECTION
 
 
 
+// ==========================================
+// FONCTIONS UTILES RESTANTES
+// ==========================================
 
-// Fonction pour déplacer une carte vers l'inventaire d'un joueur
 function deplacerCarte(niveauPaquet, indexCarte, roleJoueur) {
     let paquetSource;
     if (niveauPaquet === 1) paquetSource = etatPartie.paquetLv1;
     else if (niveauPaquet === 2) paquetSource = etatPartie.paquetLv2;
     else if (niveauPaquet === 3) paquetSource = etatPartie.paquetLv3;
 
-    // On retire la carte de la rivière
+    // Sécurité : Vérifie que la carte existe vraiment avant de la retirer
+    if (!paquetSource[indexCarte]) return;
+
     let carteAchetee = paquetSource.splice(indexCarte, 1)[0];
     
-    // On change le propriétaire et on l'ajoute au joueur
     carteAchetee.owner = roleJoueur;
     etatPartie.joueurs[roleJoueur].paquet.push(carteAchetee);
 }
-
 
 function bougerPrivilege(roleBeneficiaire) {
     let joueur = etatPartie.joueurs[roleBeneficiaire];
     let roleAdversaire = (roleBeneficiaire === 'Player1') ? 'Player2' : 'Player1';
     let adversaire = etatPartie.joueurs[roleAdversaire];
 
-    // 1. S'il reste des privilèges sur le plateau, on en prend un
     if (etatPartie.privileges.length > 0) {
-        let priv = etatPartie.privileges.pop(); // Retire le dernier du plateau
+        let priv = etatPartie.privileges.pop();
         priv.owner = roleBeneficiaire;
         joueur.privileges.push(priv);
-        console.log("privilege récupéré");
-    } 
-    // 2. Sinon, on en vole un à l'adversaire (s'il en a)
-    else if (adversaire.privileges.length > 0) {
+        console.log("Privilège récupéré du plateau");
+    } else if (adversaire.privileges.length > 0) {
         let priv = adversaire.privileges.pop();
         priv.owner = roleBeneficiaire;
         joueur.privileges.push(priv);
-        console.log("privilege volé");
+        console.log("Privilège volé à l'adversaire");
     }
 }
 
-
-// Lancement du serveur
 server.listen(3000, () => {
     console.log('Le serveur Splendor tourne sur le port 3000 !');
 });
