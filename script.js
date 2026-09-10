@@ -8,6 +8,10 @@ const socket = io({
 let jetonsSelectionnes = [];
 let monRole = "Spectateur";
 
+let modePrivilegeActif = false;
+let privilegeElementSelectionne = null;
+let tourActuel = null; // pour savoir si c'est mon tour dans afficherInventaires
+
 // ==========================================
 // 1. RÉCEPTION DES DONNÉES DU SERVEUR
 // ==========================================
@@ -62,9 +66,11 @@ function afficherRivieres(etatServeur) {
 // Le serveur nous envoie l'état officiel de la partie (le vrai plateau)
 socket.on('mise_a_jour_partie', (etatServeur) => {
     console.log("Mise à jour reçue du serveur !");
-    afficherPlateau(etatServeur.plateau);
-    // afficherPaquetCarte(etatServeur.paquet);
+    tourActuel = etatServeur.tourActuel;
+    modePrivilegeActif = false;
+    privilegeElementSelectionne = null;
 
+    afficherPlateau(etatServeur.plateau);
     afficherInventaires(etatServeur.joueurs);
     afficherRivieres(etatServeur);
     afficherPrivileges(etatServeur);
@@ -109,8 +115,12 @@ function afficherPlateau(plateau) {
     caseDiv.innerText = jeton.couleur.charAt(0); 
 
     // 4. Rend le jeton cliquable
-    caseDiv.onclick = function() {
-        cliquerJeton(i, j, jeton, caseDiv);
+        caseDiv.onclick = function() {
+        if (modePrivilegeActif) {
+            utiliserPrivilegeSurJeton(i, j, jeton);
+        } else {
+            cliquerJeton(i, j, jeton, caseDiv);
+        }
     };
 }
 
@@ -223,10 +233,17 @@ function afficherInventaires(joueurs) {
         return div;
     }
 
-    function creerElementPrivilege() {
+    function creerElementPrivilege(clickable) {
         const div = document.createElement("div");
         div.classList.add("privilege-visuel");
         div.style.backgroundImage = "url('apercus/privilege.png')";
+
+        if (clickable) {
+            div.style.cursor = "pointer";
+            div.onclick = function() {
+                cliquerPrivilege(div);
+            };
+        }
         return div;
     }
 
@@ -244,7 +261,7 @@ function afficherInventaires(joueurs) {
     // 5. Remplissage de mon inventaire (en bas)
     if (joueurs[monId]) {
         joueurs[monId].privileges.forEach(() => {
-            privLocale.appendChild(creerElementPrivilege());
+            privLocale.appendChild(creerElementPrivilege(estMonTour));
         });
 
         joueurs[monId].poche.forEach(jeton => {
@@ -259,7 +276,7 @@ function afficherInventaires(joueurs) {
     // 6. Remplissage de l'inventaire adverse (en haut à droite)
     if (joueurs[adversaireId]) {
         joueurs[adversaireId].privileges.forEach(() => {
-            privAdversaire.appendChild(creerElementPrivilege());
+            privAdversaire.appendChild(creerElementPrivilege(false)); // jamais cliquable
         });
 
         joueurs[adversaireId].poche.forEach(jeton => {
@@ -352,4 +369,41 @@ function afficherPrivileges(etatServeur) {
 function demanderRemplissagePlateau() {
     // Envoie la demande au serveur
     socket.emit('demande_remplissage_plateau');
+}
+
+
+
+
+function utiliserPrivilegeSurJeton(ligne, colonne, jeton) {
+    if (jeton.couleur === "Gold") {
+        console.log("Impossible de prendre un jeton Or avec un privilège !");
+        return;
+    }
+    socket.emit('demande_privilege', { ligne, colonne });
+
+    modePrivilegeActif = false;
+    if (privilegeElementSelectionne) {
+        privilegeElementSelectionne.classList.remove("selectionne");
+        privilegeElementSelectionne = null;
+    }
+}
+
+
+function cliquerPrivilege(elementHTML) {
+    // Reclic sur le même privilège = annulation
+    if (privilegeElementSelectionne === elementHTML) {
+        elementHTML.classList.remove("selectionne");
+        privilegeElementSelectionne = null;
+        modePrivilegeActif = false;
+        return;
+    }
+
+    // On désélectionne l'ancien s'il y en avait un
+    if (privilegeElementSelectionne) {
+        privilegeElementSelectionne.classList.remove("selectionne");
+    }
+
+    elementHTML.classList.add("selectionne");
+    privilegeElementSelectionne = elementHTML;
+    modePrivilegeActif = true;
 }

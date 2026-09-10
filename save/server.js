@@ -511,6 +511,62 @@ io.on('connection', (socket) => {
 
 
 
+
+        // ==========================================
+    // ACTION : UTILISER UN PRIVILÈGE
+    // ==========================================
+    socket.on('demande_privilege', (choix) => {
+        let client = connexions.find(c => c.id === socket.id);
+
+        // 1. Seul le joueur dont c'est le tour peut jouer un privilège
+        if (!client || client.role !== etatPartie.tourActuel) {
+            console.log("Refusé : ce n'est pas ton tour.");
+            return;
+        }
+
+        let joueur = etatPartie.joueurs[client.role];
+
+        // 2. Le joueur doit posséder au moins un privilège
+        if (!joueur.privileges || joueur.privileges.length === 0) {
+            console.log("Refusé : aucun privilège disponible.");
+            return;
+        }
+
+        // 3. La case doit exister et contenir un jeton
+        if (!etatPartie.plateau[choix.ligne] || etatPartie.plateau[choix.ligne][choix.colonne] === undefined) {
+            console.log("Erreur : case invalide.");
+            return;
+        }
+        let jeton = etatPartie.plateau[choix.ligne][choix.colonne];
+        if (!jeton) {
+            console.log("Refusé : case vide.");
+            return;
+        }
+
+        // 4. On interdit l'Or via privilège (règle classique de Splendor Duel — à retirer si tu veux l'autoriser)
+        if (jeton.couleur === "Gold") {
+            console.log("Refusé : impossible de prendre l'Or avec un privilège.");
+            return;
+        }
+
+        // 5. On donne le jeton au joueur
+        jeton.owner = joueur.nom;
+        joueur.poche.push(jeton);
+        etatPartie.plateau[choix.ligne][choix.colonne] = null;
+
+        // 6. Le privilège utilisé retourne sur le plateau
+        let privUtilise = joueur.privileges.pop();
+        privUtilise.owner = "plateau";
+        etatPartie.privileges.push(privUtilise);
+
+        // 7. IMPORTANT : on ne change PAS tourActuel — le joueur doit encore jouer son action principale
+        io.emit('mise_a_jour_partie', etatPartie);
+    });
+
+
+
+    
+
     // ==========================================
     // DECONNEXION
     // ==========================================
